@@ -515,6 +515,27 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
 .cl-ex { color: var(--muted); }
 .cl-ex .katex { font-size: .98em; }
 
+/* ---------- image handles: 8 resize points, side rotate knob, corner rotate zones ---------- */
+.ihs { position: absolute; inset: 0; pointer-events: none; }
+.ih { position: absolute; width: 12px; height: 12px; box-sizing: border-box; background: var(--panel); border: 2px solid var(--accent); border-radius: 3px; transform: translate(-50%, -50%) scale(calc(1 / var(--z))); pointer-events: auto; touch-action: none; z-index: 7; }
+.ih.edge { border-radius: 4px; }
+.ih[data-h="n"], .ih[data-h="s"] { width: 18px; height: 9px; }
+.ih[data-h="e"], .ih[data-h="w"] { width: 9px; height: 18px; }
+.ih[data-h="nw"] { left: 0; top: 0; } .ih[data-h="n"] { left: 50%; top: 0; } .ih[data-h="ne"] { left: 100%; top: 0; } .ih[data-h="e"] { left: 100%; top: 50%; }
+.ih[data-h="se"] { left: 100%; top: 100%; } .ih[data-h="s"] { left: 50%; top: 100%; } .ih[data-h="sw"] { left: 0; top: 100%; } .ih[data-h="w"] { left: 0; top: 50%; }
+.irot-stem { position: absolute; left: 100%; top: 50%; width: calc(26px / var(--z)); height: calc(1.5px / var(--z)); background: var(--accent); transform: translateY(-50%); }
+.irot { position: absolute; left: calc(100% + 34px / var(--z)); top: 50%; width: 18px; height: 18px; box-sizing: border-box; border-radius: 50%; background: var(--panel); border: 2px solid var(--accent); transform: translate(-50%, -50%) scale(calc(1 / var(--z))); pointer-events: auto; touch-action: none; z-index: 7; }
+.irot::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--accent); }
+.irot, .irz { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18.5 12a6.5 6.5 0 1 1-1.9-4.6' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M19 4v4.5h-4.5' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M18.5 12a6.5 6.5 0 1 1-1.9-4.6' stroke='%23111' stroke-width='2'/%3E%3Cpath d='M19 4v4.5h-4.5' stroke='%23111' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E") 12 12, grab; }
+.irz { position: absolute; width: 22px; height: 22px; transform: translate(-50%, -50%) scale(calc(1 / var(--z))); pointer-events: auto; touch-action: none; z-index: 6; }
+.irz[data-c="nw"] { left: calc(-13px / var(--z)); top: calc(-13px / var(--z)); }
+.irz[data-c="ne"] { left: calc(100% + 13px / var(--z)); top: calc(-13px / var(--z)); }
+.irz[data-c="se"] { left: calc(100% + 13px / var(--z)); top: calc(100% + 13px / var(--z)); }
+.irz[data-c="sw"] { left: calc(-13px / var(--z)); top: calc(100% + 13px / var(--z)); }
+.ideg { position: absolute; left: 50%; top: calc(-26px / var(--z)); transform: translate(-50%, -50%) scale(calc(1 / var(--z))); background: var(--ink); color: var(--paper); font: 500 11.5px/1.6 var(--font-mono); padding: 0 7px; border-radius: 5px; white-space: nowrap; pointer-events: none; }
+@media (pointer: coarse) { .ih { width: 20px; height: 20px; } .ih[data-h="n"], .ih[data-h="s"] { width: 26px; height: 14px; } .ih[data-h="e"], .ih[data-h="w"] { width: 14px; height: 26px; } .irot { width: 28px; height: 28px; } }
+
+
 /* standalone (P2P) additions */
 .pp-share { margin: 4px 8px 6px; }
 .pp-lab { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
@@ -672,7 +693,7 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
         <code>Давление столба</code><span>строка со словами — подпись</span>
       </div>
       <h3>Картинки и колесо мыши</h3>
-      <p>Скопируйте картинку или скриншот и нажмите Ctrl+V на доске — она встанет туда, где курсор. Картинку можно перетащить из папки или выбрать в меню «⋯». Угловая ручка меняет размер с сохранением пропорций, Shift — свободно.</p>
+      <p>Скопируйте картинку или скриншот и нажмите Ctrl+V на доске — она встанет туда, где курсор. Картинку можно перетащить из папки или выбрать в меню «⋯». Ручки в углах и на сторонах меняют размер свободно; с Shift пропорции сохраняются, с Alt картинка растягивается от центра. Повернуть можно за круглую ручку сбоку или взявшись чуть снаружи любого угла.</p>
       <p>Колесо работает одинаково на доске и в выделенном графике: колесо мыши или Ctrl + колесо — масштаб под курсором, прокрутка двумя пальцами — сдвиг, Shift + колесо — сдвиг вбок.</p>
       <h3>Фигуры, стрелки, измерения</h3>
       <p>Прямоугольник и треугольник — это многоугольники: тяните любую вершину, при этом видны внутренние углы. «+» на стороне добавляет вершину, двойной щелчок по вершине удаляет её. «Правильный» держит стороны и углы равными. У эллипса при выделении видны фокусы F₁ и F₂.</p>
@@ -912,10 +933,43 @@ function onMsg(msg) {
   }
 }
 try { bc = new BroadcastChannel('lemma:' + board); bc.onmessage = e => onMsg(e.data); } catch (e) { bc = null; }
+// TURN relay for networks where a direct connection is impossible (mobile internet, CGNAT, strict Wi-Fi).
+// Open Relay by Metered uses the standard "TURN REST" scheme: a short-lived password is HMAC-SHA1 of "expiry:user"
+// with the public shared secret, so nothing has to be registered and no key is hidden in the page.
+const TURN_HOST = 'staticauth.openrelay.metered.ca', TURN_SECRET = 'openrelayprojectsecret';
+async function turnServers() {
+  try {
+    const user = (Math.floor(Date.now() / 1000) + 24 * 3600) + ':lemma';
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey('raw', enc.encode(TURN_SECRET), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+    const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, enc.encode(user)));
+    let bin = ''; for (const b of sig) bin += String.fromCharCode(b);
+    const credential = btoa(bin), h = TURN_HOST;
+    return [{ urls: ['turn:' + h + ':80', 'turn:' + h + ':80?transport=tcp', 'turn:' + h + ':443', 'turn:' + h + ':443?transport=tcp', 'turns:' + h + ':443?transport=tcp'], username: user, credential }];
+  } catch (e) { console.warn('TURN недоступен:', e); return []; }
+}
+let linkStats = { direct: 0, relay: 0 };
+async function refreshLinkStats() {
+  if (!tRoom || typeof tRoom.getPeers !== 'function') return;
+  const out = { direct: 0, relay: 0 };
+  for (const pc of Object.values(tRoom.getPeers() || {})) {
+    try {
+      const stats = await pc.getStats(); let pair = null; const byId = new Map();
+      stats.forEach(r => { byId.set(r.id, r); if (r.type === 'transport' && r.selectedCandidatePairId) pair = r.selectedCandidatePairId; });
+      let sel = pair ? byId.get(pair) : null;
+      if (!sel) stats.forEach(r => { if (r.type === 'candidate-pair' && r.state === 'succeeded' && (r.nominated || r.selected)) sel = r; });
+      if (!sel) continue;
+      const lc = byId.get(sel.localCandidateId), rc = byId.get(sel.remoteCandidateId);
+      if ((lc && lc.candidateType === 'relay') || (rc && rc.candidateType === 'relay')) out.relay++; else out.direct++;
+    } catch (e) { /* peer closing */ }
+  }
+  if (out.direct !== linkStats.direct || out.relay !== linkStats.relay) { linkStats = out; updateNet(); }
+}
+setInterval(refreshLinkStats, 4000);
 async function connectNet() {
   try {
-    const mod = await import(TRYSTERO_URL);
-    tRoom = mod.joinRoom({ appId: APP_ID, password: 'lemma:' + board }, board);
+    const [mod, turnConfig] = await Promise.all([import(TRYSTERO_URL), turnServers()]);
+    tRoom = mod.joinRoom({ appId: APP_ID, password: 'lemma:' + board, turnConfig }, board);
     tAction = tRoom.makeAction('lm');
     tAction.onMessage = data => onMsg(data);
     tRoom.onPeerJoin = peerId => { try { tAction.send({ t: 'hb', from: me, pres: myPres, who: who() }, { target: peerId }); } catch (e) { /* retry on next heartbeat */ } };
@@ -965,7 +1019,11 @@ function netLine() {
   const n = peers.size;
   if (netState === 'loading') return 'Подключаюсь к сети…';
   if (netState === 'error') return n ? 'Связь только между вкладками этого браузера.' : 'Нет связи с другими устройствами: не загрузился модуль прямых соединений. Проверьте интернет и откройте доску ещё раз.';
-  return n ? 'Соединено напрямую с участниками: ' + n + '.' : 'В сети. Ждём участников: отправьте им ссылку.';
+  if (!n) return 'В сети. Ждём участников: отправьте им ссылку.';
+  const parts = [];
+  if (linkStats.direct) parts.push('напрямую: ' + linkStats.direct);
+  if (linkStats.relay) parts.push('через сервер-посредник: ' + linkStats.relay);
+  return 'Соединено с участниками: ' + n + (parts.length ? ' (' + parts.join(', ') + ')' : '') + '.';
 }
 function updateNet() { if (hostApi) { const el = document.getElementById('ppNet'); if (el) el.textContent = netLine(); } }
 async function copyText(text) {
@@ -982,7 +1040,7 @@ window.lemmaHost = {
       '<div class="pp-code">Код доски: <b>' + esc(board) + '</b></div></div>' +
       '<p class="pp-note" id="ppNet">' + esc(netLine()) + '</p>' +
       '<p class="pp-note">' + (othersCount ? 'Нажмите на участника, чтобы видеть доску его глазами. ' : '') +
-      'Сервера нет: доска хранится в браузере каждого участника и сливается, когда вы снова оказываетесь на ней вместе. В некоторых сетях (университетский Wi-Fi, мобильный интернет) прямое соединение может не установиться.</p>' +
+      'Своего сервера нет: доска хранится в браузере каждого участника и сливается, когда вы снова оказываетесь на ней вместе. Если напрямую соединиться нельзя (мобильный интернет, общежитие, университетский Wi-Fi), связь идёт через бесплатный сервер-посредник Open Relay; данные при этом зашифрованы.</p>' +
       '<button class="pp-rename" data-host="rename">Сменить имя: ' + esc(myName || 'Гость') + '</button>';
   },
   async onAction(cmd, el) {
@@ -1862,7 +1920,7 @@ function zIndexOf(it) {
   return Math.round(it.z * 2);
 }
 function syncHandle(el, it) {
-  const want = S.sel.size === 1 && S.sel.has(it.id) && RESIZABLE.has(it.type) && !isBaked(it) && S.editing !== it.id && S.tool === 'select';
+  const want = S.sel.size === 1 && S.sel.has(it.id) && RESIZABLE.has(it.type) && !isBaked(it) && it.type !== 'image' && S.editing !== it.id && S.tool === 'select';
   let h = el.querySelector(':scope > .handle');
   if (want && !h) { h = document.createElement('div'); h.className = 'handle'; h.title = 'Размер от центра (Shift — пропорционально)'; el.appendChild(h); }
   else if (!want && h) h.remove();
@@ -2023,10 +2081,20 @@ const R = {
     const g = eff(it);
     pos(el, it); el.style.width = g.w + 'px'; el.style.height = g.h + 'px';
     applyRot(el, it);
-    const k = it.src.length + ':' + it.src.slice(-48);
-    if (el._k === k) return;
-    el._k = k;
-    el.innerHTML = it.src ? '<img src="' + it.src + '" alt="" draggable="false">' : '<div class="img-missing">Картинка недоступна</div>';
+    if (el._src !== it.src) {
+      el._src = it.src;
+      el.querySelectorAll(':scope > img, :scope > .img-missing').forEach(n => n.remove());
+      const media = it.src ? Object.assign(document.createElement('img'), { src: it.src, alt: '', draggable: false }) : Object.assign(document.createElement('div'), { className: 'img-missing', textContent: 'Картинка недоступна' });
+      el.insertBefore(media, el.firstChild);
+    }
+    const selOne = selOneOf(it);
+    const rotating = !!(drag && drag.kind === 'rotate' && drag.single && drag.start.has(it.id));
+    const hk = selOne + ':' + Math.round((it.rot || 0) * 10) + ':' + rotating;
+    if (el._hk === hk) return;
+    el._hk = hk;
+    let box = el.querySelector(':scope > .ihs');
+    if (!box) { box = document.createElement('div'); box.className = 'ihs'; el.appendChild(box); }
+    box.innerHTML = selOne ? imageHandles(it.rot || 0, rotating) : '';
   },
   calc(it, el) {
     pos(el, it); el.style.width = eff(it).w + 'px';
@@ -2069,6 +2137,49 @@ const R = {
     view.innerHTML = vh;
   }
 };
+const IMG_HANDLES = { nw: [-1, -1], n: [0, -1], ne: [1, -1], e: [1, 0], se: [1, 1], s: [0, 1], sw: [-1, 1], w: [-1, 0] };
+const RESIZE_CURSORS = ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize'];
+function imageHandles(rot, rotating) {
+  let h = '<div class="irot-stem"></div><div class="irot" title="Повернуть (Shift — шаг 15°)"></div>';
+  for (const k of ['nw', 'ne', 'se', 'sw']) h += '<div class="irz" data-c="' + k + '" title="Повернуть"></div>';
+  for (const [k, [sx, sy]] of Object.entries(IMG_HANDLES)) {
+    const ang = Math.atan2(sy, sx) * 180 / Math.PI + rot;
+    const cur = RESIZE_CURSORS[Math.round((((ang % 180) + 180) % 180) / 45) % 4];
+    h += '<div class="ih' + (sx && sy ? '' : ' edge') + '" data-h="' + k + '" style="cursor:' + cur + '" title="Размер · Shift — сохранить пропорции · Alt — от центра"></div>';
+  }
+  if (rotating) h += '<div class="ideg">' + fmtNum(normDeg(rot), 1) + '°</div>';
+  return h;
+}
+function startImgResize(e, id, hk) {
+  const it = S.items.get(id); if (!it) return;
+  const bb = baseBox(it);
+  drag = { kind: 'iresize', id, h: IMG_HANDLES[hk], o: clone(it), c: { x: bb.x + bb.w / 2, y: bb.y + bb.h / 2 } };
+}
+function doImgResize(e) {
+  const it = S.items.get(drag.id); if (!it) return;
+  const o = drag.o, [sx, sy] = drag.h, rot = o.rot || 0, c0 = drag.c, MIN = 16;
+  const w = toWorld(e.clientX, e.clientY), p = rotV(w.x - c0.x, w.y - c0.y, -rot);
+  const fromCenter = e.altKey;
+  let nw = o.w, nh = o.h;
+  if (sx) nw = fromCenter ? 2 * sx * p.x : sx * p.x + o.w / 2;
+  if (sy) nh = fromCenter ? 2 * sy * p.y : sy * p.y + o.h / 2;
+  nw = Math.max(MIN, nw); nh = Math.max(MIN, nh);
+  if (e.shiftKey) {
+    const ratio = o.w / o.h;
+    if (sx && sy) { const k = Math.max(nw / o.w, nh / o.h); nw = o.w * k; nh = o.h * k; }
+    else if (sx) nh = nw / ratio;
+    else nw = nh * ratio;
+  }
+  let lx = 0, ly = 0;
+  if (!fromCenter) {
+    if (sx) lx = -sx * o.w / 2 + sx * nw / 2;
+    if (sy) ly = -sy * o.h / 2 + sy * nh / 2;
+  }
+  const off = rotV(lx, ly, rot);
+  it.w = r1(nw); it.h = r1(nh);
+  it.x = r1(c0.x + off.x - it.w / 2); it.y = r1(c0.y + off.y - it.h / 2);
+  renderItem(it); requestArrows(); requestCtx();
+}
 function sizeCalc(ta) { const n = ta.value.split('\n').length; ta.style.height = (Math.max(3, n) * 24 + 20 + (ta.scrollWidth > ta.clientWidth + 2 ? 12 : 0)) + 'px'; }
 function openCalcEditor(id) {
   const el = els.get(id); if (!el) return;
@@ -2909,7 +3020,7 @@ function setSel(ids) {
   S.sel = new Set(ids.filter(id => S.items.has(id)));
   closePicker();
   for (const [id, el] of els) { el.classList.toggle('sel', S.sel.has(id)); const it = S.items.get(id); if (it) syncHandle(el, it); }
-  for (const id of new Set([...before, ...S.sel])) { const it = S.items.get(id); if (it && (it.type === 'shape' || it.type === 'arrow')) renderItem(it); }
+  for (const id of new Set([...before, ...S.sel])) { const it = S.items.get(id); if (it && (it.type === 'shape' || it.type === 'arrow' || it.type === 'image')) renderItem(it); }
   buildCtx();
   pres({ sel: [...S.sel].slice(0, 40) });
 }
@@ -3051,7 +3162,7 @@ function positionCtx() {
   if (S.sel.size) {
     const b = selBox(); if (!b) return;
     const z = S.cam.z, sx = b.x * z + S.cam.x, sy = b.y * z + S.cam.y, sw2 = b.w * z, sh = b.h * z;
-    const knob = S.tool === 'select' && !S.editing && [...S.sel].some(id => { const it = S.items.get(id); return it && ROT_TYPES.has(it.type); });
+    const knob = S.tool === 'select' && !S.editing && !(S.sel.size === 1 && (S.items.get([...S.sel][0]) || {}).type === 'image') && [...S.sel].some(id => { const it = S.items.get(id); return it && ROT_TYPES.has(it.type); });
     const gapTop = knob ? 62 : 16, gapBot = knob ? 30 : 16;
     left = sx + sw2 / 2 - cw / 2; top = sy - chh - gapTop;
     if (top < 64) top = sy + sh + gapBot;
@@ -3076,7 +3187,7 @@ function setTool(t) {
   for (const b of toolbar.querySelectorAll('.tool')) b.setAttribute('aria-pressed', String(b.dataset.tool === t));
   viewport.dataset.tool = t;
   if (t !== 'select' && S.sel.size) setSel([]);
-  else { for (const id of S.sel) { const it = S.items.get(id); if (it && (it.type === 'shape' || it.type === 'arrow')) renderItem(it); } buildCtx(); }
+  else { for (const id of S.sel) { const it = S.items.get(id); if (it && (it.type === 'shape' || it.type === 'arrow' || it.type === 'image')) renderItem(it); } buildCtx(); }
 }
 function applyPrefs() {
   viewport.classList.toggle('grid-lines', S.grid === 'lines');
@@ -3498,7 +3609,7 @@ function updateTbox() {
   const solid = sel.filter(i => i.type !== 'arrow');
   const canRot = sel.some(i => ROT_TYPES.has(i.type));
   const multi = solid.length > 1 || (solid.length === 1 && isBaked(solid[0]));
-  if (!solid.length || S.editing || S.tool !== 'select' || (!canRot && !multi)) { tbox.hidden = true; return; }
+  if (!solid.length || S.editing || S.tool !== 'select' || (!canRot && !multi) || (solid.length === 1 && solid[0].type === 'image')) { tbox.hidden = true; return; }
   const b = selBox(); if (!b) { tbox.hidden = true; return; }
   tbox.hidden = false;
   tbox.style.left = b.x + 'px'; tbox.style.top = b.y + 'px'; tbox.style.width = b.w + 'px'; tbox.style.height = b.h + 'px';
@@ -3621,7 +3732,7 @@ function onDown(e) {
   finishEdit();
   e.preventDefault();
   const w = toWorld(e.clientX, e.clientY);
-  const tHandle = t.closest('.tb-rot, .tb-scale, .vh, .eh, .ah, .pin, .handle');
+  const tHandle = t.closest('.tb-rot, .tb-scale, .vh, .eh, .ah, .pin, .handle, .ih, .irot, .irz');
   if (e.button === 1 || S.tool === 'hand' || spaceDown || (e.pointerType === 'touch' && S.tool === 'select' && !id && !tHandle)) return startPan(e);
   if (e.button !== 0) return;
   switch (S.tool) {
@@ -3630,6 +3741,8 @@ function onDown(e) {
       if (t.closest('.tb-scale')) return startTransform(e, 'gscale');
       if (id) {
         const ah = t.closest('.ah'); if (ah) return startArrowEnd(e, id, ah.dataset.end);
+        const ih = t.closest('.ih'); if (ih) return startImgResize(e, id, ih.dataset.h);
+        if (t.closest('.irot, .irz')) { if (!S.sel.has(id) || S.sel.size !== 1) setSel([id]); return startTransform(e, 'rotate'); }
         const vh = t.closest('.vh'); if (vh) return startVertex(e, id, +vh.dataset.i);
         const eh = t.closest('.eh'); if (eh) return insertVertex(e, id, +eh.dataset.i);
         if (t.closest('.pin')) return startArrowDraw(e, { id, pin: true });
@@ -3808,6 +3921,7 @@ function onMove(e) {
       const el = els.get(it.id); if (el) el._k = null;
       renderItem(it); requestCtx(); return;
     }
+    case 'iresize': doImgResize(e); return;
     case 'rotate': {
       const w = toWorld(e.clientX, e.clientY);
       let delta = (Math.atan2(w.y - drag.c.y, w.x - drag.c.x) - drag.a0) * 180 / Math.PI;
@@ -3907,10 +4021,10 @@ function onUp(e) {
       }
       return;
     }
-    case 'resize': pres({ drag: null }); commit(); buildCtx(); return;
+    case 'resize': case 'iresize': pres({ drag: null }); commit(); buildCtx(); return;
     case 'vertex': { const it = S.items.get(d.id); if (it) { const el = els.get(it.id); if (el) el._k = null; renderItem(it); } commit(); buildCtx(); return; }
     case 'aend': { viewport.classList.remove('linking'); setLinkHover(null); const it = S.items.get(d.id); if (it) { const el = els.get(it.id); if (el) el._k = null; renderItem(it); } commit(); buildCtx(); return; }
-    case 'rotate': case 'gscale': tbox.querySelector('.tb-deg').hidden = true; commit(); buildCtx(); return;
+    case 'rotate': case 'gscale': { tbox.querySelector('.tb-deg').hidden = true; for (const id of d.start.keys()) { const it = S.items.get(id); if (it && it.type === 'image') renderItem(it); } commit(); buildCtx(); return; }
     case 'marquee': marqueeEl.hidden = true; return;
     case 'pen': {
       d.path.remove();
@@ -3988,7 +4102,7 @@ viewport.addEventListener('dblclick', e => {
   if (e.target.closest('[data-ui]')) return;
   const vh = e.target.closest('.vh');
   if (vh) { const it = S.items.get(vh.closest('.item').dataset.id); if (removeVertex(it, +vh.dataset.i)) { const el = els.get(it.id); if (el) el._k = null; renderItem(it); commit(); buildCtx(); } return; }
-  if (e.target.closest('.ah, .eh, .pin, .tbox, .handle')) return;
+  if (e.target.closest('.ah, .eh, .pin, .tbox, .handle, .ih, .irot, .irz')) return;
   if (S.tool === 'ruler' || S.tool === 'proto') return;
   const itemEl = e.target.closest('.item');
   if (itemEl) { const it = S.items.get(itemEl.dataset.id); if (it && it.type !== 'graph' && it.type !== 'calc') { setSel([it.id]); startEdit(it.id); } return; }
