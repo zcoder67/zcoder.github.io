@@ -551,7 +551,7 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
 .name-card input { display: block; width: 100%; box-sizing: border-box; height: 42px; padding: 0 12px; font-size: 15px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel-2); color: var(--ink); margin-bottom: 16px; outline: none; user-select: text; -webkit-user-select: text; }
 .name-card input:focus { border-color: var(--accent); }
 .pp-mode { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 8px 6px; font-size: 12.5px; color: var(--muted); }
-.pp-mode select { font: 13px var(--font-ui); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; padding: 4px 6px; }
+.pp-mode select { flex: 1; min-width: 0; max-width: 220px; font: 13px var(--font-ui); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; padding: 4px 6px; }
 .pp-ver { font-size: 11.5px; color: var(--muted); margin: 2px 8px 4px; opacity: .85; }
 
 </style>
@@ -735,7 +735,7 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
 (function () {
 'use strict';
 const APP_ID = 'lemma-math-board-p2p-2026';
-const BUILD = '5 ноября 2026, 22:15';
+const BUILD = '5 ноября 2026, 22:40';
 // Matchmaking relays. Trystero's own default picks 5 small community relays from a fixed list;
 // when those are down, nobody finds anybody, even on one Wi-Fi. These are large, long-running public relays.
 const RELAYS = ['wss://nos.lol', 'wss://relay.damus.io', 'wss://relay.primal.net', 'wss://nostr.mom', 'wss://offchain.pub', 'wss://relay.nostr.net', 'wss://nostr.oxtr.dev', 'wss://relay.snort.social'];
@@ -919,17 +919,30 @@ const room = {
 };
 const who = () => ({ uid, name: myName || 'Гость', color });
 
-// ---------- transports: same-browser tabs (BroadcastChannel) + internet (WebRTC via Trystero) ----------
+// ---------- transports ----------
+// 1) other tabs of this browser: BroadcastChannel;
+// 2) other devices, directly: WebRTC via Trystero (in «Авто» with the free Open Relay TURN server as well);
+// 3) fallback when no direct channel opens (VPN extensions with WebRTC leak protection, firewalls, networks that
+//    block TURN): the same Nostr matchmaking servers carry the board's messages, AES-GCM encrypted with a key
+//    derived from the board code. A little slower, but it works wherever the participants could find each other.
 let bc = null, tAction = null, tRoom = null, netState = 'loading';
+const seenVia = { bc: new Map(), rtc: new Map() }; // peer -> time of its last message over that transport
+const nsSeen = new Map(); // peer -> { first, last } heard through the servers
 function send(msg) {
   msg.from = me;
   if (bc) { try { bc.postMessage(msg); } catch (e) { /* tab channel closed */ } }
   if (tAction) { try { tAction.send(msg); } catch (e) { /* peer gone */ } }
+  nsQueue(msg);
 }
-function onMsg(msg) {
+function onMsg(msg, via) {
   if (!msg || typeof msg !== 'object' || typeof msg.from !== 'string' || msg.from === me || msg.from.length > 40) return;
+  const now = Date.now();
+  if (via === 'ns') {
+    const s = nsSeen.get(msg.from);
+    if (s) s.last = now; else { nsSeen.set(msg.from, { first: now, last: now }); nsBeaconSoon(); }
+  } else if (via && seenVia[via]) seenVia[via].set(msg.from, now);
   if (msg.to && msg.to !== me) return;
-  if (msg.t === 'bye') { dropPeer(msg.from); return; }
+  if (msg.t === 'bye') { dropPeer(msg.from); nsSeen.delete(msg.from); return; }
   const isNew = touchPeer(msg.from, msg);
   if (isNew) { send({ t: 'sync', to: msg.from, docs }); send({ t: 'hb', pres: myPres, who: who() }); }
   if (msg.t === 'put') { const c = merge(msg.path, msg.rec); if (c) { persist(); emitChanges([c]); } }
@@ -939,7 +952,191 @@ function onMsg(msg) {
     if (changes.length) { persist(); emitChanges(changes); }
   }
 }
-try { bc = new BroadcastChannel('lemma:' + board); bc.onmessage = e => onMsg(e.data); } catch (e) { bc = null; }
+try { bc = new BroadcastChannel('lemma:' + board); bc.onmessage = e => onMsg(e.data, 'bc'); } catch (e) { bc = null; }
+
+// ----- fallback channel through the matchmaking servers -----
+const NS_GRACE = 10000, NS_FANOUT = 4, NS_CHUNK = 16000, NS_MAX_PARTS = 400;
+const ns = { mod: null, started: false, topic: '', kind: 0, key: null, subId: 'lm' + rand(14), socks: new Map(),
+  ids: new Set(), idQ: [], parts: new Map(), mine: new Set(), hi: [], lo: [], loAt: 0, backoff: new Map(),
+  active: new Set(), out: null, outT: 0, beaconT: 0, pumping: false, lastCount: -1 };
+const nsAllowed = () => netMode !== 'direct';
+function directFresh(id, now) { return now - Math.max(seenVia.bc.get(id) || 0, seenVia.rtc.get(id) || 0) < 10000; }
+// Participants heard through the servers whose direct channel has not opened within the grace period.
+function nsTargets() {
+  const now = Date.now(), out = new Set();
+  if (!ns.started || !nsAllowed()) return out;
+  for (const [id, s] of nsSeen) {
+    if (now - s.last > PEER_TIMEOUT) { nsSeen.delete(id); continue; }
+    if (directFresh(id, now)) continue;
+    if (netMode === 'servers' || now - s.first >= NS_GRACE) out.add(id);
+  }
+  return out;
+}
+function nsWaiting() {
+  const now = Date.now();
+  if (!ns.started || !nsAllowed() || netMode === 'servers') return 0;
+  let n = 0;
+  for (const [id, s] of nsSeen) if (now - s.last <= PEER_TIMEOUT && !directFresh(id, now) && now - s.first < NS_GRACE) n++;
+  return n;
+}
+function nsQueue(msg) {
+  if (!ns.started) return;
+  const targets = nsTargets();
+  if (!targets.size || (msg.to && !targets.has(msg.to))) return;
+  nsEnqueue(msg);
+}
+// Messages are coalesced (latest cursor, latest version of each item) and sent as one bundle every 250 ms.
+function nsEnqueue(msg) {
+  const o = ns.out || (ns.out = { pres: null, hb: null, puts: new Map(), other: [] });
+  const m = Object.assign({}, msg); delete m.from;
+  if (m.t === 'p' && !m.to) o.pres = m;
+  else if (m.t === 'hb' && !m.to) o.hb = m;
+  else if (m.t === 'put') o.puts.set(m.path, m);
+  else o.other.push(m);
+  if (!ns.outT) ns.outT = setTimeout(nsFlush, 250);
+}
+function nsFlush() {
+  ns.outT = 0;
+  const o = ns.out; ns.out = null;
+  if (!o) return;
+  const m = [...o.other, ...o.puts.values()];
+  if (o.hb) m.push(o.hb);
+  if (o.pres) m.push(o.pres);
+  if (m.length) nsPublish({ from: me, m });
+}
+function nsBeacon() {
+  ns.beaconT = 0;
+  if (ns.started && nsAllowed()) nsEnqueue({ t: 'hb', pres: myPres, who: who() });
+}
+function nsBeaconSoon() { if (!ns.beaconT) ns.beaconT = setTimeout(nsBeacon, 700); }
+function toB64(u8) { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function fromB64(b) { const s = atob(b), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+async function squeeze(bytes, dir) {
+  const stream = new Blob([bytes]).stream().pipeThrough(dir === 'pack' ? new CompressionStream('deflate-raw') : new DecompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function nsPublish(obj) {
+  try {
+    let bytes = new TextEncoder().encode(JSON.stringify(obj)), flag = 'r';
+    if (bytes.length > 1500 && typeof CompressionStream === 'function') { bytes = await squeeze(bytes, 'pack'); flag = 'z'; }
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, ns.key, bytes));
+    const all = new Uint8Array(12 + ct.length); all.set(iv); all.set(ct, 12);
+    const b64 = toB64(all), n = Math.ceil(b64.length / NS_CHUNK), mid = rand(10);
+    if (n > NS_MAX_PARTS) { hostApi && hostApi.toast('Доска слишком большая для передачи через серверы знакомства.', 5000); return; }
+    ns.mine.add(mid); setTimeout(() => ns.mine.delete(mid), 180000);
+    for (let i = 0; i < n; i++) (n === 1 ? ns.hi : ns.lo).push('L1|' + mid + '|' + i + '|' + n + '|' + flag + '|' + b64.slice(i * NS_CHUNK, (i + 1) * NS_CHUNK));
+    if (ns.hi.length > 60) ns.hi.splice(0, ns.hi.length - 60);
+  } catch (e) { console.warn('P2P: не удалось отправить через серверы знакомства', e); }
+}
+function nsSendSockets() {
+  const now = Date.now(), open = [];
+  for (const url of RELAYS) { const r = ns.socks.get(url); if (r && r.ws.readyState === 1) open.push(url); }
+  const fresh = open.filter(u => !(ns.backoff.get(u) > now));
+  return (fresh.length ? fresh : open.slice(0, 2)).slice(0, NS_FANOUT).map(u => ns.socks.get(u).ws);
+}
+// Small bundles go out at once; parts of a large one (a whole board for a newcomer) are paced to stay under rate limits.
+async function nsPump() {
+  if (ns.pumping || !ns.started || (!ns.hi.length && !ns.lo.length)) return;
+  const socks = nsSendSockets();
+  if (!socks.length) return;
+  ns.pumping = true;
+  try {
+    const batch = ns.hi.splice(0, 3);
+    if (ns.lo.length && Date.now() - ns.loAt >= 140) { batch.push(ns.lo.shift()); ns.loAt = Date.now(); }
+    for (const content of batch) {
+      const ev = await ns.mod.createEvent(ns.topic, content);
+      for (const ws of socks) { try { ws.send(ev); } catch (e) { /* socket closing */ } }
+    }
+  } catch (e) { console.warn('P2P:', e); } finally { ns.pumping = false; }
+}
+function nsSub(url) {
+  const r = ns.socks.get(url);
+  if (!r || r.ws.readyState !== 1) return;
+  try { r.ws.send(JSON.stringify(['REQ', ns.subId, { kinds: [ns.kind], '#x': [ns.topic], since: Math.floor(Date.now() / 1000) - 300 }])); } catch (e) { /* closing */ }
+}
+function nsOpen(url) {
+  const prev = ns.socks.get(url);
+  let ws;
+  try { ws = new WebSocket(url); } catch (e) { return; }
+  const rec = { ws, retry: prev ? prev.retry : 2000 };
+  ns.socks.set(url, rec);
+  ws.onopen = () => { rec.retry = 2000; nsSub(url); refreshRelays(); };
+  ws.onmessage = e => { if (typeof e.data === 'string') nsOnRaw(url, e.data); };
+  ws.onclose = () => {
+    if (ns.socks.get(url) !== rec) return;
+    const d = rec.retry; rec.retry = Math.min(d * 2, 60000);
+    setTimeout(() => { if (ns.socks.get(url) === rec) nsOpen(url); }, d * (0.6 + Math.random() * 0.8));
+    refreshRelays();
+  };
+}
+function nsOnRaw(url, data) {
+  let m;
+  try { m = JSON.parse(data); } catch (e) { return; }
+  if (!Array.isArray(m)) return;
+  if (m[0] === 'EVENT' && m[1] === ns.subId && m[2] && typeof m[2].content === 'string' && typeof m[2].id === 'string') {
+    const ev = m[2];
+    if (ns.ids.has(ev.id)) return;
+    ns.ids.add(ev.id); ns.idQ.push(ev.id);
+    if (ns.idQ.length > 5000) ns.ids.delete(ns.idQ.shift());
+    nsOnContent(ev.content);
+  } else if (m[0] === 'OK' && m[2] === false) {
+    const why = String(m[3] || '');
+    if (!/^duplicate/i.test(why)) ns.backoff.set(url, Date.now() + (/^rate-limited/i.test(why) ? 20000 : 120000));
+  } else if (m[0] === 'CLOSED' && m[1] === ns.subId) {
+    setTimeout(() => nsSub(url), 8000);
+  }
+}
+function nsOnContent(c) {
+  const p = c.split('|');
+  if (p.length !== 6 || p[0] !== 'L1') return;
+  const mid = p[1], i = +p[2], n = +p[3], flag = p[4], data = p[5];
+  if (ns.mine.has(mid) || !(Number.isInteger(n) && n >= 1 && n <= NS_MAX_PARTS && Number.isInteger(i) && i >= 0 && i < n)) return;
+  if (n === 1) { nsOpenMsg(data, flag); return; }
+  let a = ns.parts.get(mid);
+  if (!a) { a = { n, got: 0, parts: new Array(n), t: Date.now(), flag }; ns.parts.set(mid, a); }
+  if (a.n !== n || a.parts[i] !== undefined) return;
+  a.parts[i] = data; a.got++; a.t = Date.now();
+  if (a.got === n) { ns.parts.delete(mid); nsOpenMsg(a.parts.join(''), a.flag); }
+}
+async function nsOpenMsg(b64, flag) {
+  let obj;
+  try {
+    const all = fromB64(b64);
+    let bytes = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: all.subarray(0, 12) }, ns.key, all.subarray(12)));
+    if (flag === 'z') bytes = await squeeze(bytes, 'unpack');
+    obj = JSON.parse(new TextDecoder().decode(bytes));
+  } catch (e) { return; /* another board or a damaged message */ }
+  if (!obj || typeof obj.from !== 'string' || !Array.isArray(obj.m)) return;
+  for (const msg of obj.m.slice(0, 2000)) if (msg && typeof msg === 'object' && !Array.isArray(msg)) { msg.from = obj.from; onMsg(msg, 'ns'); }
+}
+async function nsStart(mod) {
+  if (ns.started || !mod || typeof mod.createEvent !== 'function') return;
+  const enc = new TextEncoder();
+  const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+  ns.topic = hex(await crypto.subtle.digest('SHA-256', enc.encode('lemma-data|' + APP_ID + '|' + board))).slice(0, 40);
+  ns.key = await crypto.subtle.importKey('raw', await crypto.subtle.digest('SHA-256', enc.encode('lemma-key|' + APP_ID + '|' + board)), 'AES-GCM', false, ['encrypt', 'decrypt']);
+  ns.kind = JSON.parse(await mod.createEvent(ns.topic, ''))[1].kind;
+  ns.mod = mod; ns.started = true;
+  RELAYS.forEach(nsOpen);
+  setTimeout(nsBeacon, 1500);
+}
+setInterval(nsPump, 60);
+setInterval(() => {
+  if (!ns.started) return;
+  const t = nsTargets(), now = Date.now();
+  for (const id of t) if (!ns.active.has(id)) {
+    // the direct channel did not open: hand this participant the whole board through the servers
+    ns.active.add(id);
+    nsEnqueue({ t: 'sync', to: id, docs }); nsEnqueue({ t: 'hb', pres: myPres, who: who() });
+    if (netMode === 'auto' && !turnState) checkTurn();
+  }
+  for (const id of [...ns.active]) if (!t.has(id)) ns.active.delete(id);
+  for (const [k, a] of ns.parts) if (now - a.t > 60000) ns.parts.delete(k);
+  const sig = t.size * 100 + nsWaiting();
+  if (sig !== ns.lastCount) { ns.lastCount = sig; updateNet(); }
+}, 1000);
+
 // TURN relay for networks where a direct connection is impossible (mobile internet, CGNAT, strict Wi-Fi).
 // Open Relay by Metered uses the standard "TURN REST" scheme: a short-lived password is HMAC-SHA1 of "expiry:user"
 // with the public shared secret, so nothing has to be registered and no key is hidden in the page.
@@ -955,9 +1152,28 @@ async function turnServers() {
     return [{ urls: ['turn:' + h + ':80', 'turn:' + h + ':443?transport=tcp', 'turns:' + h + ':443?transport=tcp'], username: user, credential }];
   } catch (e) { console.warn('TURN недоступен:', e); return []; }
 }
+// Diagnostics only: can this browser get an address on the TURN server at all?
+let turnState = '';
+async function checkTurn() {
+  turnState = 'checking';
+  const t = await turnServers();
+  let pc = null;
+  const ok = t.length ? await new Promise(res => {
+    try {
+      pc = new RTCPeerConnection({ iceServers: t, iceTransportPolicy: 'relay' });
+      pc.createDataChannel('probe');
+      pc.onicecandidate = e => { if (e.candidate && / typ relay/.test(e.candidate.candidate)) res(true); else if (!e.candidate) res(false); };
+      pc.createOffer().then(o => pc.setLocalDescription(o)).catch(() => res(false));
+      setTimeout(() => res(false), 12000);
+    } catch (e) { res(false); }
+  }) : false;
+  try { if (pc) pc.close(); } catch (e) { /* closed */ }
+  turnState = ok ? 'ok' : 'fail';
+  updateNet();
+}
 let linkStats = { direct: 0, relay: 0 };
 async function refreshLinkStats() {
-  if (!tRoom || typeof tRoom.getPeers !== 'function') return;
+  if (!tRoom || typeof tRoom.getPeers !== 'function') { if (linkStats.direct || linkStats.relay) { linkStats = { direct: 0, relay: 0 }; updateNet(); } return; }
   const out = { direct: 0, relay: 0 };
   for (const pc of Object.values(tRoom.getPeers() || {})) {
     try {
@@ -973,54 +1189,64 @@ async function refreshLinkStats() {
   if (out.direct !== linkStats.direct || out.relay !== linkStats.relay) { linkStats = out; updateNet(); }
 }
 setInterval(refreshLinkStats, 4000);
-// Connection mode: 'auto' starts exactly like a plain direct connection and turns the relay on
-// only after a peer was found but could not be reached; 'direct' never uses it; 'relay' always does.
-const NET_MODES = { auto: 'Авто', direct: 'Только напрямую', relay: 'Всегда через посредника' };
+// «Авто»: WebRTC with the TURN relay, falling back to the servers; «Только напрямую»: WebRTC without any relay;
+// «Только через серверы знакомства»: no WebRTC at all (useful where WebRTC is switched off in the browser).
+const NET_MODES = { auto: 'Авто', direct: 'Только напрямую', servers: 'Только через серверы' };
 let netMode = LS.get('lemma-net-mode', 'auto'); if (!NET_MODES[netMode]) netMode = 'auto';
 let usingRelay = false, switching = false, modP = null, relaysUp = -1, lastJoinError = '';
-async function refreshRelays() {
-  try {
-    const mod = modP && await modP;
-    if (!mod || typeof mod.getRelaySockets !== 'function') return;
-    const socks = Object.values(mod.getRelaySockets() || {});
-    const up = socks.filter(ws => ws && ws.readyState === 1).length;
-    if (up !== relaysUp) { relaysUp = up; updateNet(); }
-  } catch (e) { /* diagnostics only */ }
+function refreshRelays() {
+  let up = -1;
+  if (ns.started) { up = 0; for (const r of ns.socks.values()) if (r.ws.readyState === 1) up++; }
+  else {
+    try {
+      const mod = ns.mod;
+      if (mod && typeof mod.getRelaySockets === 'function') up = Object.values(mod.getRelaySockets() || {}).filter(ws => ws && ws.readyState === 1).length;
+    } catch (e) { /* diagnostics only */ }
+  }
+  if (up !== relaysUp) { relaysUp = up; updateNet(); }
 }
 setInterval(refreshRelays, 2500);
-function livePeerCount() { try { return tRoom && tRoom.getPeers ? Object.keys(tRoom.getPeers() || {}).length : 0; } catch (e) { return 0; } }
-async function joinNet(withRelay) {
+async function joinNet() {
   const mod = await (modP || (modP = import(TRYSTERO_URL)));
+  nsStart(mod).catch(e => console.warn('P2P: резервный канал недоступен', e));
+  usingRelay = false;
+  if (netMode === 'servers' || typeof RTCPeerConnection !== 'function') return;
   const cfg = { appId: APP_ID, password: 'lemma:' + board, relayConfig: { urls: RELAYS } };
-  if (withRelay) { const t = await turnServers(); if (t.length) cfg.turnConfig = t; }
+  if (netMode === 'auto') { const t = await turnServers(); if (t.length) cfg.turnConfig = t; }
   usingRelay = !!cfg.turnConfig;
   tRoom = mod.joinRoom(cfg, board, { onJoinError: onJoinErr });
   tAction = tRoom.makeAction('lm');
-  tAction.onMessage = data => onMsg(data);
+  tAction.onMessage = data => onMsg(data, 'rtc');
   tRoom.onPeerJoin = peerId => { try { tAction.send({ t: 'hb', from: me, pres: myPres, who: who() }, { target: peerId }); } catch (e) { /* retry on next heartbeat */ } };
 }
 function onJoinErr(d) {
   const msg = String((d && d.error) || '');
   console.warn('P2P:', msg);
-  lastJoinError = /exchanging SDP|connect to peer/i.test(msg) ? 'Участник найден, но соединиться не удалось.' : /password|handshake/i.test(msg) ? 'Участник найден, но не прошёл проверку доски.' : '';
+  lastJoinError = /exchanging SDP|connect to peer/i.test(msg) ? 'Участник найден, но прямой канал не открылся.' : /password|handshake/i.test(msg) ? 'Участник найден, но не прошёл проверку доски.' : lastJoinError;
+  if (/exchanging SDP|connect to peer/i.test(msg) && netMode === 'auto' && !turnState) checkTurn();
   updateNet();
-  if (netMode === 'auto' && !usingRelay && /exchanging SDP|connect to peer/i.test(msg) && livePeerCount() === 0) switchNet(true);
 }
-async function switchNet(withRelay) {
+async function switchNet() {
   if (switching) return;
-  switching = true; netState = 'loading'; updateNet();
+  switching = true; netState = 'loading'; lastJoinError = ''; updateNet();
   try { const r = tRoom && tRoom.leave(); if (r && r.then) await r.catch(() => {}); } catch (e) { /* already gone */ }
-  tRoom = null; tAction = null;
+  tRoom = null; tAction = null; seenVia.rtc.clear();
   await new Promise(res => setTimeout(res, 800));
-  try { await joinNet(withRelay); netState = 'ready'; } catch (e) { console.warn('P2P недоступен:', e); netState = 'error'; }
+  try { await joinNet(); netState = 'ready'; } catch (e) { console.warn('P2P недоступен:', e); netState = 'error'; }
   switching = false; updateNet();
 }
 async function connectNet() {
-  try { await joinNet(netMode === 'relay'); netState = 'ready'; }
+  try { await joinNet(); netState = 'ready'; }
   catch (e) { console.warn('P2P недоступен:', e); netState = 'error'; }
   updateNet();
 }
-const heartbeat = () => send({ t: 'hb', pres: myPres, who: who() });
+let hbN = 0;
+function heartbeat() {
+  send({ t: 'hb', pres: myPres, who: who() });
+  // A slow beacon through the servers lets participants without a direct channel find us; skipped while the
+  // heartbeat already goes that way.
+  if (ns.started && nsAllowed() && !nsTargets().size && hbN++ % 2 === 0) nsBeacon();
+}
 setInterval(heartbeat, HB_MS);
 window.addEventListener('pagehide', () => { send({ t: 'bye' }); try { if (tRoom) tRoom.leave(); } catch (e) { /* closing */ } });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) heartbeat(); });
@@ -1059,14 +1285,19 @@ function netLine() {
   const n = peers.size;
   if (netState === 'loading') return 'Подключаюсь к сети…';
   if (netState === 'error') return n ? 'Связь только между вкладками этого браузера.' : 'Нет связи с другими устройствами: не загрузился модуль прямых соединений. Проверьте интернет и откройте доску ещё раз.';
-  const relayNote = (usingRelay ? ' Сервер-посредник включён.' : '') +
-    (relaysUp >= 0 ? ' Серверы знакомства: ' + relaysUp + ' из ' + RELAYS.length + ' на связи' + (relaysUp === 0 ? ' — из вашей сети они недоступны, поэтому участники не находят друг друга.' : '.') : '') +
-    (lastJoinError && !n ? ' ' + lastJoinError : '');
-  if (!n) return 'В сети. Ждём участников: отправьте им ссылку.' + relayNote;
+  const viaNs = nsTargets().size, waiting = nsWaiting();
   const parts = [];
   if (linkStats.direct) parts.push('напрямую: ' + linkStats.direct);
   if (linkStats.relay) parts.push('через сервер-посредник: ' + linkStats.relay);
-  return 'Соединено с участниками: ' + n + (parts.length ? ' (' + parts.join(', ') + ')' : '') + '.' + relayNote;
+  if (viaNs) parts.push('через серверы знакомства: ' + viaNs);
+  let s = n ? 'Соединено с участниками: ' + n + (parts.length ? ' (' + parts.join(', ') + ')' : '') + '.' : 'В сети. Ждём участников: отправьте им ссылку.';
+  if (relaysUp >= 0) s += ' Серверы знакомства: ' + relaysUp + ' из ' + RELAYS.length + ' на связи' + (relaysUp === 0 ? ' — из вашей сети они недоступны, поэтому участники не находят друг друга.' : '.');
+  if (netMode === 'servers') return s + ' Прямые соединения выключены: правки идут через серверы знакомства в зашифрованном виде.';
+  if (viaNs) s += ' Прямой канал не открылся, поэтому правки идут через серверы знакомства в зашифрованном виде, с задержкой в доли секунды.';
+  else if (waiting) s += ' Участник найден, открываю канал…';
+  else if (lastJoinError && !n) s += ' ' + lastJoinError;
+  if (netMode === 'auto' && turnState === 'fail') s += ' Сервер-посредник Open Relay из вашей сети недоступен.';
+  return s;
 }
 function updateNet() { if (hostApi) { const el = document.getElementById('ppNet'); if (el) el.textContent = netLine(); } }
 async function copyText(text) {
@@ -1084,7 +1315,7 @@ window.lemmaHost = {
       '<p class="pp-note" id="ppNet">' + esc(netLine()) + '</p>' +
       '<label class="pp-mode">Связь <select id="ppMode" aria-label="Способ связи">' + Object.entries(NET_MODES).map(([k, v]) => '<option value="' + k + '"' + (k === netMode ? ' selected' : '') + '>' + v + '</option>').join('') + '</select></label>' +
       '<p class="pp-note">' + (othersCount ? 'Нажмите на участника, чтобы видеть доску его глазами. ' : '') +
-      'Своего сервера нет: доска хранится в браузере каждого участника и сливается, когда вы снова оказываетесь на ней вместе. В режиме «Авто» доска сначала соединяется напрямую, а если не выходит (мобильный интернет, общежитие, университетский Wi-Fi), включает бесплатный сервер-посредник Open Relay; данные при этом зашифрованы.</p>' +
+      'Своего сервера нет: доска хранится в браузере каждого участника и сливается, когда вы снова оказываетесь на ней вместе. В режиме «Авто» браузеры соединяются напрямую или через бесплатный сервер-посредник Open Relay. Если за 10 секунд прямой канал не открылся (VPN-расширения, строгий Wi-Fi, брандмауэр), правки идут через серверы знакомства. Всё, что уходит в сеть, зашифровано кодом доски.</p>' +
       '<button class="pp-rename" data-host="rename">Сменить имя: ' + esc(myName || 'Гость') + '</button>' +
       '<p class="pp-ver">Версия доски: ' + esc(BUILD) + '. У всех участников она должна совпадать.</p>';
   },
@@ -1106,7 +1337,7 @@ window.lemmaHost = {
     document.addEventListener('change', e => {
       if (e.target && e.target.id === 'ppMode') {
         netMode = NET_MODES[e.target.value] ? e.target.value : 'auto'; LS.set('lemma-net-mode', netMode);
-        switchNet(netMode === 'relay');
+        switchNet();
       }
     });
     if (!myName) askName(false);
