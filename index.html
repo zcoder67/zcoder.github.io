@@ -144,8 +144,6 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
 .fx-hint { font: 11.5px/1.4 var(--font-ui); color: var(--muted); margin-top: 6px; }
 
 .item.shape { display: grid; place-items: center; }
-.item.shape > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.item.shape > svg * { fill: color-mix(in srgb, var(--sc) 12%, var(--paper)); stroke: var(--sc); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .item.shape .rt, .item.shape .ed { position: relative; padding: 10px 14px; text-align: center; font-size: 15px; line-height: 1.35; color: var(--ink); max-width: 100%; box-sizing: border-box; }
 
 .item.frame { border: 1.5px solid color-mix(in srgb, var(--ink) 26%, transparent); border-radius: 6px; background: color-mix(in srgb, var(--panel) 50%, transparent); pointer-events: none; }
@@ -364,6 +362,135 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
 @media (max-width: 420px) { .brand-name { display: none; } }
 @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } .toast { transition: none; } }
 
+/* ---------- shapes: polygons and ellipses ---------- */
+.item.shape > svg.sh { position: absolute; left: 0; top: 0; overflow: visible; }
+.item.shape .body { fill: var(--sfill); stroke: var(--sstroke); stroke-width: var(--ssw); stroke-linejoin: round; }
+.item.shape .fline { stroke: var(--sstroke); stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; vector-effect: non-scaling-stroke; opacity: .7; }
+.vh, .eh, .ah, .focus, .ang { position: absolute; transform: translate(-50%, -50%) scale(calc(1 / var(--z))); }
+.vh { width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; background: var(--panel); border: 2px solid var(--accent); cursor: move; touch-action: none; z-index: 6; }
+.vh:hover { background: var(--accent); }
+.eh { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); color: var(--on-accent); opacity: .5; cursor: copy; display: grid; place-items: center; touch-action: none; z-index: 5; }
+.eh::before { content: "+"; font: 600 12px/1 var(--font-ui); }
+.eh:hover { opacity: 1; }
+.ang { background: var(--ink); color: var(--paper); font: 500 11px/1.6 var(--font-mono); padding: 0 6px; border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 7; font-variant-numeric: tabular-nums; }
+.focus { width: 8px; height: 8px; border-radius: 50%; background: var(--sstroke, var(--accent)); box-shadow: 0 0 0 2px var(--panel); pointer-events: none; z-index: 6; }
+.focus span { position: absolute; left: 11px; top: -15px; font: italic 600 13px/1 "KaTeX_Main", Georgia, serif; color: var(--ink); white-space: nowrap; }
+@media (pointer: coarse) { .vh { width: 22px; height: 22px; } .eh { width: 22px; height: 22px; } .ah { width: 22px !important; height: 22px !important; } }
+
+/* ---------- arrows: ends and magnets ---------- */
+.ah { width: 14px; height: 14px; box-sizing: border-box; border-radius: 50%; background: var(--panel); border: 2px solid var(--muted); pointer-events: auto; cursor: crosshair; touch-action: none; z-index: 6; }
+.ah.mag { border-color: var(--accent); }
+.ah.att { background: var(--accent); }
+#viewport.linking, #viewport.linking * { cursor: crosshair !important; }
+.item.link-target { outline: calc(2px / var(--z)) dashed var(--accent); outline-offset: calc(6px / var(--z)); }
+
+/* ---------- sticky-note pin ---------- */
+.pin { position: absolute; left: 50%; top: -16px; width: 12px; height: 12px; box-sizing: border-box; transform: translate(-50%, -50%); border-radius: 50%; background: #FFFDF2; border: 2px solid rgba(31, 42, 36, .55); cursor: crosshair; touch-action: none; box-shadow: 0 1px 2px rgba(0, 0, 0, .2); }
+.pin::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+.pin:hover, #viewport.linking .pin { border-color: var(--accent); background: var(--accent); }
+.item.note.link-pin .pin { transform: translate(-50%, -50%) scale(1.6); background: var(--accent); border-color: var(--accent); }
+.item.note.editing .pin { display: none; }
+
+/* ---------- transform box ---------- */
+.tbox { position: absolute; pointer-events: none; z-index: 900000; box-sizing: border-box; }
+.tbox.multi { outline: calc(1.5px / var(--z)) dashed var(--accent); outline-offset: calc(8px / var(--z)); }
+.tb-stem { position: absolute; left: 50%; top: calc(-30px / var(--z)); height: calc(22px / var(--z)); width: calc(1.5px / var(--z)); background: var(--accent); transform: translateX(-50%); }
+.tb-rot { position: absolute; left: 50%; top: calc(-36px / var(--z)); width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%; background: var(--panel); border: 2px solid var(--accent); transform: translate(-50%, -50%) scale(calc(1 / var(--z))); pointer-events: auto; cursor: grab; touch-action: none; }
+.tb-rot::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--accent); }
+.tb-scale { position: absolute; right: calc(-12px / var(--z)); bottom: calc(-12px / var(--z)); width: 13px; height: 13px; box-sizing: border-box; background: var(--panel); border: 2px solid var(--accent); border-radius: 3px; transform: translate(50%, 50%) scale(calc(1 / var(--z))); pointer-events: auto; cursor: nwse-resize; touch-action: none; }
+.tb-deg { position: absolute; left: 50%; top: calc(-62px / var(--z)); transform: translate(-50%, -50%) scale(calc(1 / var(--z))); background: var(--ink); color: var(--paper); font: 500 11.5px/1.6 var(--font-mono); padding: 0 7px; border-radius: 5px; white-space: nowrap; }
+@media (pointer: coarse) { .tb-rot, .tb-scale { width: 26px; height: 26px; } }
+
+/* ---------- color picker ---------- */
+.picker { position: absolute; z-index: 45; width: 272px; max-width: calc(100% - 16px); padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
+.pk-h { display: flex; justify-content: space-between; align-items: center; }
+.pk-h b { font-size: 13.5px; font-weight: 600; }
+.pk-pre { display: flex; flex-wrap: wrap; gap: 6px; }
+.pk-sw { width: 24px; height: 24px; border-radius: 6px; border: 0; padding: 0; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .18); }
+.pk-sw:hover { transform: scale(1.1); }
+.pk-sw.none, .swc.none { background: linear-gradient(135deg, transparent 44%, var(--red) 44%, var(--red) 56%, transparent 56%), var(--panel) !important; }
+.pk-sv { position: relative; height: 140px; border-radius: 8px; cursor: crosshair; touch-action: none; background: linear-gradient(to top, #000, rgba(0, 0, 0, 0)), linear-gradient(to right, #fff, var(--pk-hue, red)); }
+.pk-thumb { position: absolute; width: 14px; height: 14px; box-sizing: border-box; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .45); transform: translate(-50%, -50%); pointer-events: none; background: var(--pk-solid); }
+.pk-row { display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.pk-row input[type=range] { width: 100%; margin: 0; -webkit-appearance: none; appearance: none; height: 10px; border-radius: 5px; outline-offset: 3px; }
+.pk-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid #333; box-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
+.pk-row input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid #333; }
+input.pk-hue { background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
+input.pk-val { background: linear-gradient(to right, #000, var(--pk-bright, #fff)); }
+input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--pk-solid)), repeating-conic-gradient(#c9c9c9 0 25%, #fff 0 50%) 0 0 / 10px 10px; }
+.pk-aout { font: 11px var(--font-mono); color: var(--ink); min-width: 42px; text-align: right; }
+.pk-out { display: flex; gap: 6px; }
+.pk-txt { flex: 1; min-width: 0; font: 12px var(--font-mono); padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel-2); color: var(--ink); outline: none; user-select: text; -webkit-user-select: text; }
+.pk-txt:focus { border-color: var(--accent); }
+.pk-copy { flex: none; border: 1px solid var(--line); background: var(--panel); border-radius: 7px; padding: 0 10px; font-size: 12.5px; font-weight: 500; }
+.pk-copy:hover { background: var(--panel-2); }
+
+/* ---------- context bar controls ---------- */
+.swb { gap: 7px; }
+.swc { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .22); display: inline-block; flex: none; }
+.cbtn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.cseg { display: inline-flex; gap: 1px; flex: none; }
+.crange { display: inline-flex; align-items: center; gap: 8px; flex: none; font-size: 12.5px; color: var(--muted); padding: 0 6px; white-space: nowrap; }
+.crange input { width: 92px; accent-color: var(--accent); }
+.crange output { min-width: 24px; font: 12px var(--font-mono); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.cnumin { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); padding: 0 6px; flex: none; }
+.cnumin input { width: 60px; height: 28px; box-sizing: border-box; font: 13px var(--font-mono); padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); color: var(--ink); user-select: text; -webkit-user-select: text; }
+.cnumin input:focus { outline: none; border-color: var(--accent); }
+.cgroup { display: inline-flex; align-items: center; flex: none; }
+.cnum { font: 12px var(--font-mono); padding: 0 4px; white-space: nowrap; color: var(--ink); }
+.chint { font-size: 12px; color: var(--muted); padding: 0 8px; white-space: nowrap; flex: none; }
+
+/* ---------- graph extras ---------- */
+.g-dot { cursor: pointer; }
+.g-dot:hover { transform: scale(1.2); }
+.g-eye svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+.g-row.off .g-eye { opacity: .45; }
+.hb-t { width: auto; padding: 0 7px; font: italic 600 12px/1 var(--font-ui); }
+
+/* ---------- ruler & protractor ---------- */
+#viewport[data-tool="ruler"], #viewport[data-tool="proto"] { cursor: crosshair; }
+.measure-layer { position: absolute; inset: 0; pointer-events: none; z-index: 12; overflow: hidden; }
+.m-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-main { stroke: var(--accent); stroke-width: 2; fill: none; }
+.m-ray { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.m-leg { stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.m-right { stroke: var(--muted); stroke-width: 1.2; fill: none; }
+.m-arc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.m-dot { fill: var(--panel); stroke: var(--accent); stroke-width: 2; }
+.m-lab { position: absolute; transform: translate(-50%, -50%); background: var(--panel); border: 1px solid var(--line); color: var(--ink); font: 12px/1.5 var(--font-mono); padding: 1px 8px; border-radius: 6px; white-space: nowrap; box-shadow: var(--shadow); font-variant-numeric: tabular-nums; }
+.m-lab.main { border-color: var(--accent); }
+.m-lab b { font-weight: 600; }
+
+/* ---------- board background menu ---------- */
+.bg-pop { top: auto; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); min-width: 260px; }
+.bg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; }
+.bg-opt { display: flex; align-items: center; gap: 9px; border: 0; background: none; padding: 8px 10px; border-radius: 7px; font-size: 13px; text-align: left; color: var(--ink); }
+.bg-opt:hover { background: var(--panel-2); }
+.bg-opt.on { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.bg-sw { width: 18px; height: 18px; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); flex: none; }
+.bg-sw.auto { background: linear-gradient(135deg, #EDF2E6 50%, #1D2924 50%); }
+.bg-sw.white { background: #FFFFFF; } .bg-sw.black { background: #0D0E10; } .bg-sw.blue { background: #13294A; } .bg-sw.dkgreen { background: #1D2924; } .bg-sw.gray { background: #D3D7DC; }
+@media (max-width: 720px) { .bg-pop { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); } }
+
+/* ---------- board themes (per viewer) ---------- */
+:root[data-board][data-board="white"], :root[data-board][data-board="gray"] {
+  --ink: #1B2430; --muted: #5B6675; --accent: #2443B8; --on-accent: #FFFFFF; --accent-soft: rgba(36, 67, 184, 0.11); --red: #B8392A;
+  --shadow: 0 1px 2px rgba(20, 30, 45, .07), 0 6px 20px rgba(20, 30, 45, .10);
+  --c-ink: #1B2430; --c-blue: #2443B8; --c-red: #B8392A; --c-green: #2B7A4B; --c-orange: #B9620E; --c-purple: #7339A8;
+  color-scheme: light;
+}
+:root[data-board][data-board="white"] { --paper: #FFFFFF; --grid-minor: rgba(60, 80, 110, 0.09); --grid-major: rgba(60, 80, 110, 0.19); --panel: #FFFFFF; --panel-2: #F1F3F6; --line: #D6DCE4; }
+:root[data-board][data-board="gray"] { --paper: #D3D7DC; --grid-minor: rgba(25, 35, 50, 0.08); --grid-major: rgba(25, 35, 50, 0.17); --panel: #F2F4F6; --panel-2: #E4E7EB; --line: #BCC3CC; }
+:root[data-board][data-board="black"], :root[data-board][data-board="blue"], :root[data-board][data-board="dkgreen"] {
+  --accent: #F0D36A; --accent-soft: rgba(240, 211, 106, 0.15); --red: #F08A78;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .38);
+  --c-blue: #93B2FF; --c-red: #F08A78; --c-green: #8ED5A3; --c-orange: #F1B26A; --c-purple: #C9A3F0;
+  color-scheme: dark;
+}
+:root[data-board][data-board="black"] { --paper: #0D0E10; --grid-minor: rgba(255, 255, 255, 0.05); --grid-major: rgba(255, 255, 255, 0.11); --panel: #18191C; --panel-2: #222429; --line: #33363C; --ink: #E8EAED; --muted: #9AA0A8; --on-accent: #0D0E10; --c-ink: #E8EAED; }
+:root[data-board][data-board="blue"] { --paper: #13294A; --grid-minor: rgba(190, 215, 255, 0.08); --grid-major: rgba(190, 215, 255, 0.17); --panel: #1A335A; --panel-2: #213D68; --line: #2F4D7C; --ink: #E6EEFA; --muted: #A3B6D3; --on-accent: #13294A; --c-ink: #E6EEFA; }
+:root[data-board][data-board="dkgreen"] { --paper: #1D2924; --grid-minor: rgba(214, 233, 220, 0.055); --grid-major: rgba(214, 233, 220, 0.12); --panel: #25322D; --panel-2: #2D3B35; --line: #3A4C44; --ink: #E5ECE2; --muted: #9AAFA3; --on-accent: #1D2924; --c-ink: #E5ECE2; }
+
 /* standalone (P2P) additions */
 .pp-share { margin: 4px 8px 6px; }
 .pp-lab { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
@@ -388,6 +515,7 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
   <div id="viewport" class="grid-lines" data-tool="select">
     <div id="world"></div>
     <div id="marquee" hidden></div>
+    <div id="measure" class="measure-layer" aria-hidden="true"></div>
   </div>
   <div id="presence" class="presence-layer" aria-hidden="true"></div>
   <div id="followBar" class="follow-bar" hidden role="status"><span>Вы следите за экраном: <b class="fb-name"></b></span><button data-cmd="unfollow">Перестать</button></div>
@@ -421,6 +549,9 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
     <div class="tsep"></div>
     <button class="tool" data-tool="pen" title="Карандаш (P)" aria-label="Карандаш"><svg viewBox="0 0 24 24"><path d="m4.5 19.5 1-4.2L15.8 5a2 2 0 0 1 2.9 0l.3.3a2 2 0 0 1 0 2.9L8.7 18.5z"/><path d="m14 7 3 3"/></svg></button>
     <button class="tool" data-tool="eraser" title="Ластик (E) — стирает линии карандаша" aria-label="Ластик"><svg viewBox="0 0 24 24"><path d="M9 20h11"/><path d="m5.2 14.3 8.3-8.3a2 2 0 0 1 2.8 0l2.4 2.4a2 2 0 0 1 0 2.8L12.1 18H8.9z"/><path d="m9.5 10 5 5"/></svg></button>
+    <div class="tsep"></div>
+    <button class="tool" data-tool="ruler" title="Линейка (L)" aria-label="Линейка"><svg viewBox="0 0 24 24"><path d="M3.5 15.5 15.5 3.5l5 5-12 12z"/><path d="m7.5 11.5 2 2M10.5 8.5l1.5 1.5M13.5 5.5l2 2"/></svg></button>
+    <button class="tool" data-tool="proto" title="Транспортир (O)" aria-label="Транспортир"><svg viewBox="0 0 24 24"><path d="M3 18a9 9 0 0 1 18 0z"/><path d="M12 18 16.6 10.6"/><path d="M8 18a4 4 0 0 1 8 0"/></svg></button>
   </nav>
 
   <div class="bottombar">
@@ -436,6 +567,7 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
     </div>
     <div class="panel group grp-grid">
       <button class="ib" id="btnGrid" title="Вид сетки: клетка, точки, без сетки" aria-label="Вид сетки"><svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M9 4v16M15 4v16"/></svg></button>
+      <button class="ib" id="btnBg" title="Фон доски" aria-label="Фон доски" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 15.5 9 10l4 4 2.5-2.5 5 5"/></svg></button>
       <button class="ib" id="btnSnap" title="Привязка к сетке" aria-label="Привязка к сетке" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 4v7a6 6 0 0 0 12 0V4"/><path d="M6 8h4M14 8h4"/></svg></button>
     </div>
   </div>
@@ -450,12 +582,26 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
 
   <div id="menu" class="menu panel" hidden role="menu">
     <button class="mi" role="menuitem" data-cmd="template">Добавить пример доски</button>
+    <button class="mi" role="menuitem" data-cmd="bg">Фон доски…</button>
     <div class="msep"></div>
     <button class="mi" role="menuitem" data-cmd="export-file">Скачать доску (.json)</button>
     <button class="mi" role="menuitem" data-cmd="export-copy">Скопировать доску как JSON</button>
     <button class="mi" role="menuitem" data-cmd="import">Загрузить из файла…</button>
     <div class="msep"></div>
     <button class="mi danger" role="menuitem" data-cmd="clear" id="miClear">Очистить доску</button>
+  </div>
+
+  <div id="bgPop" class="menu panel bg-pop" hidden role="menu" aria-label="Фон доски">
+    <div class="pp-h">Фон доски</div>
+    <div class="bg-grid">
+      <button class="bg-opt" data-bg="auto"><i class="bg-sw auto"></i>Авто</button>
+      <button class="bg-opt" data-bg="white"><i class="bg-sw white"></i>Белый</button>
+      <button class="bg-opt" data-bg="black"><i class="bg-sw black"></i>Чёрный</button>
+      <button class="bg-opt" data-bg="blue"><i class="bg-sw blue"></i>Синий</button>
+      <button class="bg-opt" data-bg="dkgreen"><i class="bg-sw dkgreen"></i>Тёмно-зелёный</button>
+      <button class="bg-opt" data-bg="gray"><i class="bg-sw gray"></i>Серый</button>
+    </div>
+    <p class="pp-note">Выбор действует только в вашем браузере, у других участников фон свой.</p>
   </div>
 
   <div id="peoplePop" class="menu panel people-pop" hidden></div>
@@ -486,6 +632,8 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
         <code>x^2/9 + y^2/4 = 1</code><span>неявная кривая</span>
         <code>(cos(t), sin(t))</code><span>параметрическая кривая, t от 0 до 2π</span>
         <code>(3, 0)</code><span>точка</span>
+        <code>y &gt; x^2</code><span>неравенство: подходящая область закрашивается</span>
+        <code>r = 2cos(θ)</code><span>полярная кривая; переключите сетку на «Полярная»</span>
       </div>
       <p style="margin-top:10px">Перетаскивайте поле графика, чтобы сдвинуть оси. Колесо мыши над выделенным графиком меняет масштаб. Наведите курсор, чтобы увидеть значения.</p>
       <h3>Вычисления</h3>
@@ -496,12 +644,18 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
         <code>derivative("x^3", "x")</code><span>производная прямо в строке</span>
         <code># комментарий</code><span>строка без вычисления</span>
       </div>
+      <h3>Фигуры, стрелки, измерения</h3>
+      <p>Прямоугольник и треугольник — это многоугольники: тяните любую вершину, при этом видны внутренние углы. «+» на стороне добавляет вершину, двойной щелчок по вершине удаляет её. «Правильный» держит стороны и углы равными. У эллипса при выделении видны фокусы F₁ и F₂.</p>
+      <p>У стрелки есть ручки на обоих концах и магнит для каждого конца. Включённый магнит цепляет конец к объекту, выключенный оставляет его на месте на доске или в разделе. Над стикером есть закрепка: потяните от неё, чтобы провести стрелку.</p>
+      <p>Над выделением круглая ручка поворота, угловая ручка масштабирует от центра. Линейка показывает катеты и гипотенузу в клетках, транспортир — угол в градусах и радианах.</p>
       <h3>Клавиши</h3>
       <div class="kv">
         <kbd>V H</kbd><span>выбор, рука</span>
         <kbd>F G C</kbd><span>формула, график, вычисления</span>
         <kbd>N T R M A</kbd><span>стикер, текст, фигура, раздел, стрелка</span>
         <kbd>P E</kbd><span>карандаш, ластик</span>
+        <kbd>L O</kbd><span>линейка, транспортир</span>
+        <kbd>Shift</kbd><span>карандаш — по осям и 45°; фигура — квадрат, круг, равносторонний; поворот — шаг 15°</span>
         <kbd>Пробел + мышь</kbd><span>двигать доску</span>
         <kbd>Ctrl + колесо</kbd><span>масштаб; колесо мыши тоже приближает</span>
         <kbd>Ctrl+Z / Ctrl+Shift+Z</kbd><span>отменить / повторить</span>
@@ -901,10 +1055,8 @@ const SVGNS = 'http://www.w3.org/2000/svg';
 const NOTE_COLORS = ['yellow', 'green', 'blue', 'pink', 'orange', 'white'];
 const INKS = ['ink', 'blue', 'red', 'green', 'orange', 'purple'];
 const FN_COLORS = ['blue', 'red', 'green', 'orange', 'purple', 'ink'];
-const SHAPES = ['rect', 'ellipse', 'diamond', 'triangle'];
-const SHAPE_LABEL = { rect: 'Прямоугольник', ellipse: 'Эллипс', diamond: 'Ромб', triangle: 'Треугольник' };
 const CONST = new Set(['pi', 'e', 'i', 'tau', 'phi', 'Infinity', 'NaN', 'true', 'false', 'null', 'E', 'PI', 'LN2', 'LN10', 'LOG2E', 'LOG10E', 'SQRT1_2', 'SQRT2', 'version', 'end']);
-const LOCALVARS = new Set(['x', 'y', 't']);
+const LOCALVARS = new Set(['x', 'y', 't', 'theta']);
 const TYPES = new Set(['note', 'text', 'formula', 'graph', 'calc', 'shape', 'frame', 'arrow', 'stroke']);
 const RESIZABLE = new Set(['note', 'text', 'formula', 'graph', 'calc', 'shape', 'frame']);
 const ASKABLE = new Set(['note', 'text', 'formula', 'calc', 'graph', 'shape']);
@@ -929,7 +1081,8 @@ if (!math || !katex) {
 // ---------- state ----------
 const S = {
   items: new Map(), cam: { x: 0, y: 0, z: 1 }, tool: 'select', shapeKind: 'rect',
-  sel: new Set(), editing: null, focusLock: null, pen: { color: 'ink', width: 3 }, grid: 'lines', snap: false,
+  sel: new Set(), editing: null, focusLock: null, pen: { color: 'ink', width: 3, smooth: 40 }, grid: 'lines', snap: false,
+  board: 'auto', shapeReg: false, arrowDef: { head: true, style: 'solid' }, measure: null, hadItems: false,
   title: 'Новая доска', scope: {}, scopeSrc: {}, scopeKeys: '', scopeVer: 0, themeVer: 0, hiresVer: 0,
   calcResults: new Map(), readOnly: false, asking: new Map()
 };
@@ -1007,11 +1160,301 @@ function errRu(msg) {
   return 'ошибка';
 }
 
+// ---------- colors ----------
+const INK_PRESETS = ['ink', 'blue', 'red', 'green', 'orange', 'purple'];
+const NOTE_PRESETS = ['yellow', 'green', 'blue', 'pink', 'orange', 'white'];
+const RGBA_RE = /^rgba?\(\s*(\d{1,3}(?:\.\d+)?)\s*,\s*(\d{1,3}(?:\.\d+)?)\s*,\s*(\d{1,3}(?:\.\d+)?)\s*(?:,\s*(\d*\.?\d+)\s*)?\)$/i;
+function rgbaStr(c) { return 'rgba(' + Math.round(c.r) + ', ' + Math.round(c.g) + ', ' + Math.round(c.b) + ', ' + (Math.round(clamp(c.a, 0, 1) * 100) / 100) + ')'; }
+function cleanColor(v, presets, d, extra) {
+  if (typeof v !== 'string') return d;
+  const t = v.trim();
+  if (presets.includes(t) || (extra && extra.includes(t))) return t;
+  const m = t.match(RGBA_RE);
+  if (!m) return d;
+  return rgbaStr({ r: clamp(+m[1], 0, 255), g: clamp(+m[2], 0, 255), b: clamp(+m[3], 0, 255), a: m[4] == null ? 1 : clamp(+m[4], 0, 1) });
+}
+const isCustom = c => typeof c === 'string' && /^rgba?\(/.test(c);
+function cssColor(c, kind) {
+  if (!c || c === 'none') return 'transparent';
+  if (isCustom(c)) return c;
+  return (kind === 'note' ? 'var(--n-' : 'var(--c-') + c + ')';
+}
+function fillCss(it) {
+  if (it.fill === 'none') return 'transparent';
+  if (!it.fill || it.fill === 'tint') return 'color-mix(in srgb, ' + cssColor(it.stroke) + ' 14%, var(--paper))';
+  return cssColor(it.fill);
+}
+const colorCtx2d = document.createElement('canvas').getContext('2d');
+function toRGBA(c, kind) {
+  if (!c || c === 'none') return { r: 0, g: 0, b: 0, a: 0 };
+  let s = c;
+  if (!isCustom(s) && !/^#/.test(s)) s = getComputedStyle(document.documentElement).getPropertyValue((kind === 'note' ? '--n-' : '--c-') + s).trim() || '#000000';
+  colorCtx2d.fillStyle = '#000000'; colorCtx2d.fillStyle = s;
+  const v = String(colorCtx2d.fillStyle);
+  if (v[0] === '#') return { r: parseInt(v.slice(1, 3), 16), g: parseInt(v.slice(3, 5), 16), b: parseInt(v.slice(5, 7), 16), a: 1 };
+  const m = v.match(/\(([^)]+)\)/);
+  if (!m) return { r: 0, g: 0, b: 0, a: 1 };
+  const p = m[1].split(',').map(x => parseFloat(x));
+  return { r: p[0], g: p[1], b: p[2], a: p[3] == null ? 1 : p[3] };
+}
+function parseAnyColor(str) {
+  const t = String(str || '').trim();
+  if (!t) return null;
+  colorCtx2d.fillStyle = '#010203'; colorCtx2d.fillStyle = t; const v1 = String(colorCtx2d.fillStyle);
+  colorCtx2d.fillStyle = '#030201'; colorCtx2d.fillStyle = t; const v2 = String(colorCtx2d.fillStyle);
+  if (v1 !== v2) return null;
+  return toRGBA(v1);
+}
+function canvasColor(c) { const C = colors(); return isCustom(c) ? c : (C[c] || C.blue); }
+function lumOf(c) { return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) / 255; }
+function rgb2hsv(c) {
+  const r = c.r / 255, g = c.g / 255, b = c.b / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  let h = 0;
+  if (d) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+  return { h, s: mx ? d / mx : 0, v: mx };
+}
+function hsv2rgb(h, s, v) {
+  const c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c;
+  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 };
+}
+const COLOR_NAME = { yellow: 'Жёлтый', green: 'Зелёный', blue: 'Синий', pink: 'Розовый', orange: 'Оранжевый', white: 'Белый', ink: 'Чернила', red: 'Красный', purple: 'Фиолетовый' };
+
+// ---------- color picker ----------
+const picker = document.createElement('div');
+picker.className = 'picker panel'; picker.hidden = true;
+picker.setAttribute('role', 'dialog'); picker.setAttribute('aria-label', 'Выбор цвета');
+app.appendChild(picker);
+let pk = null, pkSuppress = null;
+function pickerSuppressed(key) { const ok = pkSuppress && pkSuppress.key === key && Date.now() - pkSuppress.t < 600; pkSuppress = null; return ok; }
+function swatchBg(v, kind, opts) {
+  if (v === 'none') return 'none';
+  if (v === 'tint') return opts && opts.tintOf ? 'color-mix(in srgb, ' + cssColor(opts.tintOf()) + ' 14%, var(--paper))' : 'var(--paper)';
+  return cssColor(v, kind);
+}
+function openPicker(anchor, opts) {
+  closePicker();
+  pk = { opts, anchorKey: opts.key || null, h: 0, s: 0, v: 0, a: 1 };
+  const kind = opts.kind || 'ink', presets = opts.presets || INK_PRESETS;
+  let pre = '';
+  if (opts.allowTint) pre += '<button class="pk-sw" data-pk="tint" title="Светлый оттенок обводки" aria-label="Светлый оттенок обводки" style="background:' + swatchBg('tint', kind, opts) + '"></button>';
+  if (opts.allowNone) pre += '<button class="pk-sw none" data-pk="none" title="Без заливки" aria-label="Без заливки"></button>';
+  pre += presets.map(p => '<button class="pk-sw" data-pk="p:' + p + '" title="' + COLOR_NAME[p] + '" aria-label="' + COLOR_NAME[p] + '" style="background:' + cssColor(p, kind) + '"></button>').join('');
+  picker.innerHTML = '<div class="pk-h"><b>' + esc(opts.title || 'Цвет') + '</b><button class="x-close" data-pk="close" aria-label="Закрыть">×</button></div>' +
+    '<div class="pk-pre">' + pre + '</div>' +
+    '<div class="pk-sv" title="Насыщенность и яркость"><i class="pk-thumb"></i></div>' +
+    '<label class="pk-row"><span>Оттенок</span><input type="range" class="pk-hue" id="pkHue" min="0" max="360" step="1"></label>' +
+    '<label class="pk-row"><span>Яркость</span><input type="range" class="pk-val" id="pkVal" min="0" max="100" step="1"></label>' +
+    '<label class="pk-row"><span>Прозрачность</span><input type="range" class="pk-alpha" id="pkAlpha" min="0" max="100" step="1"><output class="pk-aout"></output></label>' +
+    '<div class="pk-out"><input class="pk-txt" id="pkTxt" spellcheck="false" autocomplete="off" aria-label="Цвет в формате RGBA"><button class="pk-copy" data-pk="copy">Копировать</button></div>';
+  let init = opts.value;
+  let c = init === 'tint' && opts.tintOf ? Object.assign(toRGBA(opts.tintOf()), { a: 0.14 }) : toRGBA(init, kind);
+  if (init === 'none') c = { r: 128, g: 128, b: 128, a: 0 };
+  pkFromRGBA(c);
+  pkRender();
+  picker.hidden = false;
+  const ar = anchor.getBoundingClientRect(), apr = app.getBoundingClientRect();
+  const pw = picker.offsetWidth, ph = picker.offsetHeight;
+  let left = ar.left - apr.left, top = ar.bottom - apr.top + 8;
+  if (top + ph > apr.height - 8) top = ar.top - apr.top - ph - 8;
+  picker.style.left = clamp(left, 8, Math.max(8, apr.width - pw - 8)) + 'px';
+  picker.style.top = clamp(top, 8, Math.max(8, apr.height - ph - 8)) + 'px';
+}
+function closePicker() {
+  if (!pk) return;
+  const o = pk.opts; pk = null; picker.hidden = true;
+  if (o && o.onClose) o.onClose();
+}
+function pkFromRGBA(c) { const hsv = rgb2hsv(c); pk.h = hsv.h; pk.s = hsv.s; pk.v = hsv.v; pk.a = c.a; pk.rgb = { r: c.r, g: c.g, b: c.b }; }
+function pkColor() { const c = hsv2rgb(pk.h, pk.s, pk.v); c.a = pk.a; return c; }
+function pkRender(skipTxt) {
+  if (!pk) return;
+  const c = pkColor(), solid = 'rgb(' + Math.round(c.r) + ',' + Math.round(c.g) + ',' + Math.round(c.b) + ')';
+  picker.style.setProperty('--pk-hue', 'hsl(' + pk.h + ', 100%, 50%)');
+  picker.style.setProperty('--pk-solid', solid);
+  const br = hsv2rgb(pk.h, pk.s, 1);
+  picker.style.setProperty('--pk-bright', 'rgb(' + Math.round(br.r) + ',' + Math.round(br.g) + ',' + Math.round(br.b) + ')');
+  const th = picker.querySelector('.pk-thumb');
+  th.style.left = (pk.s * 100) + '%'; th.style.top = ((1 - pk.v) * 100) + '%';
+  const set = (sel, v) => { const el = picker.querySelector(sel); if (document.activeElement !== el) el.value = v; };
+  set('.pk-hue', Math.round(pk.h)); set('.pk-val', Math.round(pk.v * 100)); set('.pk-alpha', Math.round(pk.a * 100));
+  picker.querySelector('.pk-aout').textContent = 'A ' + (Math.round(pk.a * 100) / 100).toFixed(2);
+  if (!skipTxt) { const t = picker.querySelector('.pk-txt'); if (document.activeElement !== t) t.value = rgbaStr(c); }
+}
+function pkEmit(value) {
+  if (!pk) return;
+  pkRender();
+  if (pk.opts.onInput) pk.opts.onInput(value === undefined ? rgbaStr(pkColor()) : value);
+}
+picker.addEventListener('pointerdown', e => {
+  const sv = e.target.closest('.pk-sv');
+  if (!sv || !pk) return;
+  e.preventDefault();
+  const upd = ev => {
+    const r = sv.getBoundingClientRect();
+    pk.s = clamp((ev.clientX - r.left) / r.width, 0, 1); pk.v = clamp(1 - (ev.clientY - r.top) / r.height, 0, 1);
+    if (pk.a === 0) pk.a = 1;
+    pkEmit();
+  };
+  upd(e);
+  sv.setPointerCapture(e.pointerId);
+  const mv = ev => upd(ev), up = () => { sv.removeEventListener('pointermove', mv); sv.removeEventListener('pointerup', up); sv.removeEventListener('pointercancel', up); };
+  sv.addEventListener('pointermove', mv); sv.addEventListener('pointerup', up); sv.addEventListener('pointercancel', up);
+});
+picker.addEventListener('input', e => {
+  if (!pk) return;
+  const t = e.target;
+  if (t.classList.contains('pk-hue')) { pk.h = +t.value; if (pk.s === 0) pk.s = 1; if (pk.v === 0) pk.v = 1; if (pk.a === 0) pk.a = 1; pkEmit(); }
+  else if (t.classList.contains('pk-val')) { pk.v = +t.value / 100; if (pk.a === 0) pk.a = 1; pkEmit(); }
+  else if (t.classList.contains('pk-alpha')) { pk.a = +t.value / 100; pkEmit(); }
+});
+picker.addEventListener('change', e => {
+  if (!pk || !e.target.classList.contains('pk-txt')) return;
+  const c = parseAnyColor(e.target.value);
+  if (!c) { toast('Не понял цвет. Пример: rgba(255, 128, 0, 0.8) или #FF8000'); pkRender(); return; }
+  pkFromRGBA(c); pkEmit();
+});
+picker.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.stopPropagation(); closePicker(); }
+  else if (e.key === 'Enter' && e.target.classList.contains('pk-txt')) e.target.blur();
+});
+picker.addEventListener('click', e => {
+  const b = e.target.closest('[data-pk]'); if (!b || !pk) return;
+  const v = b.dataset.pk;
+  if (v === 'close') { closePicker(); return; }
+  if (v === 'copy') {
+    const txt = picker.querySelector('.pk-txt');
+    const done = () => toast('Скопировано: ' + txt.value, 1800);
+    try {
+      navigator.clipboard.writeText(txt.value).then(done, () => { txt.focus(); txt.select(); toast('Текст выделен — нажмите Ctrl+C'); });
+    } catch (err) { txt.focus(); txt.select(); toast('Текст выделен — нажмите Ctrl+C'); }
+    return;
+  }
+  if (v === 'none') { pk.a = 0; pkEmit('none'); return; }
+  if (v === 'tint') { const c = Object.assign(toRGBA(pk.opts.tintOf ? pk.opts.tintOf() : 'blue'), { a: 0.14 }); pkFromRGBA(c); pkEmit('tint'); return; }
+  if (v.startsWith('p:')) {
+    const name = v.slice(2), c = toRGBA(name, pk.opts.kind);
+    pkFromRGBA(c);
+    if (pk.opts.presetAlpha != null) { pk.a = pk.opts.presetAlpha; pkEmit(); } else pkEmit(name);
+  }
+});
+document.addEventListener('pointerdown', e => {
+  if (!pk || picker.contains(e.target)) return;
+  const k = e.target.closest && e.target.closest('[data-cmd^="pick:"], [data-act="fcolor"]');
+  if (k && pk.anchorKey && (k.dataset.cmd === pk.anchorKey || k.dataset.pkkey === pk.anchorKey)) pkSuppress = { key: pk.anchorKey, t: Date.now() };
+  closePicker();
+}, true);
+
+// ---------- shape geometry ----------
+const SHAPE_TOOLS = ['rect', 'triangle', 'ellipse'];
+const SHAPE_LABEL = { rect: 'Прямоугольник', triangle: 'Треугольник', ellipse: 'Эллипс' };
+const SQ3 = Math.sqrt(3) / 2;
+function rectPts(w, h) { return [[0, 0], [w, 0], [w, h], [0, h]]; }
+function triPts(w, h) { return [[w / 2, 0], [w, h], [0, h]]; }
+function normalizePoly(it) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of it.pts) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); }
+  if (!isFinite(x0)) { it.w = it.h = 1; return; }
+  it.x = r1(it.x + x0); it.y = r1(it.y + y0);
+  it.pts = it.pts.map(p => [r1(p[0] - x0), r1(p[1] - y0)]);
+  it.w = Math.max(1, r1(x1 - x0)); it.h = Math.max(1, r1(y1 - y0));
+}
+function absPts(it) { return it.pts.map(p => [p[0] + it.x, p[1] + it.y]); }
+function setAbsPts(it, pts) { it.x = 0; it.y = 0; it.pts = pts.map(p => [p[0], p[1]]); normalizePoly(it); }
+function polyArea(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } return a / 2; }
+function centroid(pts) { let x = 0, y = 0; for (const p of pts) { x += p[0]; y += p[1]; } return { x: x / pts.length, y: y / pts.length }; }
+function regularAbs(n, c, R, a0, sgn) { const out = []; for (let k = 0; k < n; k++) { const a = a0 + sgn * k * 2 * Math.PI / n; out.push([c.x + R * Math.cos(a), c.y + R * Math.sin(a)]); } return out; }
+function regularizePoly(it, n) {
+  const abs = absPts(it);
+  n = n || abs.length;
+  const c = centroid(abs), sgn = Math.sign(polyArea(abs)) || 1;
+  let R = 0; for (const p of abs) R += Math.hypot(p[0] - c.x, p[1] - c.y); R = Math.max(10, R / abs.length);
+  let a0 = Math.atan2(abs[0][1] - c.y, abs[0][0] - c.x);
+  if (n !== abs.length) a0 = -Math.PI / 2 + (n % 2 === 0 ? Math.PI / n : 0);
+  setAbsPts(it, regularAbs(n, c, R, a0, sgn));
+}
+function pointInPoly(x, y, pts) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const a = pts[i], b = pts[j];
+    if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1] || 1e-9) + a[0]) inside = !inside;
+  }
+  return inside;
+}
+function polyAngles(pts) {
+  const n = pts.length, sgn = Math.sign(polyArea(pts)) || 1;
+  return pts.map((p, i) => {
+    const a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+    const v1x = a[0] - p[0], v1y = a[1] - p[1], v2x = b[0] - p[0], v2y = b[1] - p[1];
+    const l1 = Math.hypot(v1x, v1y) || 1, l2 = Math.hypot(v2x, v2y) || 1;
+    let ang = Math.acos(clamp((v1x * v2x + v1y * v2y) / (l1 * l2), -1, 1));
+    const turn = (p[0] - a[0]) * (b[1] - p[1]) - (p[1] - a[1]) * (b[0] - p[0]);
+    if (Math.sign(turn) !== sgn && Math.abs(turn) > 1e-9) ang = 2 * Math.PI - ang;
+    let ux = v1x / l1 + v2x / l2, uy = v1y / l1 + v2y / l2, ul = Math.hypot(ux, uy);
+    if (ul < 1e-6) { ux = -v2y / l2; uy = v2x / l2; ul = 1; }
+    ux /= ul; uy /= ul;
+    const probe = 4;
+    if (!pointInPoly(p[0] + ux * probe, p[1] + uy * probe, pts)) { ux = -ux; uy = -uy; }
+    return { deg: ang * 180 / Math.PI, ux, uy };
+  });
+}
+function polyPath(pts, rad) {
+  const n = pts.length, f = v => r1(v);
+  if (n < 2) return '';
+  if (!rad) return 'M' + pts.map(p => f(p[0]) + ' ' + f(p[1])).join('L') + 'Z';
+  let d = '';
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+    const la = Math.hypot(a[0] - p[0], a[1] - p[1]) || 1, lb = Math.hypot(b[0] - p[0], b[1] - p[1]) || 1;
+    const r = Math.min(rad, la / 2, lb / 2);
+    const p1 = [p[0] + (a[0] - p[0]) / la * r, p[1] + (a[1] - p[1]) / la * r], p2 = [p[0] + (b[0] - p[0]) / lb * r, p[1] + (b[1] - p[1]) / lb * r];
+    d += (i ? 'L' : 'M') + f(p1[0]) + ' ' + f(p1[1]) + 'Q' + f(p[0]) + ' ' + f(p[1]) + ' ' + f(p2[0]) + ' ' + f(p2[1]);
+  }
+  return d + 'Z';
+}
+function ellipseFoci(w, h) {
+  const a = Math.max(w, h) / 2, b = Math.min(w, h) / 2, c = Math.sqrt(Math.max(0, a * a - b * b));
+  return w >= h ? [[w / 2 - c, h / 2], [w / 2 + c, h / 2]] : [[w / 2, h / 2 - c], [w / 2, h / 2 + c]];
+}
+function makeShape(kind, r, reg) {
+  const it = newItem('shape', r.x, r.y, { w: Math.max(10, Math.round(r.w)), h: Math.max(10, Math.round(r.h)) });
+  if (kind === 'ellipse') { it.kind = 'ellipse'; delete it.pts; }
+  else {
+    it.kind = 'poly';
+    it.pts = kind === 'triangle' ? triPts(it.w, it.h) : rectPts(it.w, it.h);
+    if (reg) { it.reg = true; regularizePoly(it); }
+  }
+  return it;
+}
+
+// ---------- transforms ----------
+const ROT_TYPES = new Set(['note', 'text', 'formula', 'shape', 'stroke']);
+function hasRotField(it) { return it.type === 'note' || it.type === 'text' || it.type === 'formula' || (it.type === 'shape' && it.kind === 'ellipse'); }
+function isBaked(it) { return it.type === 'stroke' || (it.type === 'shape' && it.kind !== 'ellipse'); }
+function rotV(x, y, deg) { const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return { x: x * c - y * s, y: x * s + y * c }; }
+function rotP(p, c, deg) { const v = rotV(p.x - c.x, p.y - c.y, deg); return { x: c.x + v.x, y: c.y + v.y }; }
+function normDeg(d) { d = ((d % 360) + 360) % 360; return Math.round(d * 100) / 100; }
+function applyRot(el, it) { el.style.transform = it.rot && S.editing !== it.id ? 'rotate(' + it.rot + 'deg)' : ''; }
+function rotBox(b, rot) {
+  if (!rot) return b;
+  const a = rot * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));
+  const W = b.w * c + b.h * s, H = b.w * s + b.h * c, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+  return { x: cx - W / 2, y: cy - H / 2, w: W, h: H };
+}
+const PIN_OFF = 16;
+function pinPoint(it) {
+  const b = baseBox(it), off = rotV(0, -(b.h / 2 + PIN_OFF), it.rot || 0);
+  return { x: b.x + b.w / 2 + off.x, y: b.y + b.h / 2 + off.y };
+}
+let commitSoonT = 0;
+function commitSoon(ms = 450) { clearTimeout(commitSoonT); commitSoonT = setTimeout(() => commit(), ms); }
+
+
 // ---------- math helpers ----------
 function prep(s) {
   return String(s || '')
     .replace(/[−–]/g, '-').replace(/[·×∙⋅]/g, '*').replace(/÷/g, '/')
-    .replace(/π/g, 'pi').replace(/√\s*\(/g, 'sqrt(').replace(/√\s*([\w.]+)/g, 'sqrt($1)')
+    .replace(/π/g, 'pi').replace(/θ/g, 'theta').replace(/√\s*\(/g, 'sqrt(').replace(/√\s*([\w.]+)/g, 'sqrt($1)')
     .replace(/²/g, '^2').replace(/³/g, '^3').replace(/≤/g, '<=').replace(/≥/g, '>=').replace(/≠/g, '!=')
     .trim();
 }
@@ -1148,7 +1591,7 @@ function applyCam(fromFollow) {
   viewport.style.setProperty('--gx', x + 'px');
   viewport.style.setProperty('--gy', y + 'px');
   zoomPct.textContent = Math.round(z * 100) + '%';
-  requestCtx();
+  requestCtx(); renderMeasure();
   if (!fromFollow && following) stopFollow();
   presView(); requestPresence();
   clearTimeout(camSaveT); camSaveT = setTimeout(() => LS.set(CAMKEY, S.cam), 400);
@@ -1213,9 +1656,9 @@ const TYPE_DEFAULTS = {
   formula: () => ({ src: '', fs: 28 }),
   graph: () => ({ fns: [{ e: 'sin(x)', c: 'blue', on: true }], params: {}, view: { cx: 0, cy: 0, kx: 40, ky: 40 }, marks: true }),
   calc: () => ({ src: '' }),
-  shape: () => ({ kind: 'rect', text: '', color: 'blue' }),
+  shape: () => ({ kind: 'poly', pts: [], text: '', stroke: 'blue', fill: 'tint', sw: 2, rad: 0 }),
   frame: () => ({ title: 'Раздел' }),
-  arrow: () => ({ a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, label: '', color: 'ink' }),
+  arrow: () => ({ a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, label: '', color: 'ink', head: true, style: 'solid', ma: true, mb: true }),
   stroke: () => ({ pts: [], color: 'ink', width: 3 })
 };
 function trackZ(it) { if (it.z > maxZ) maxZ = it.z; if (it.z < minZ) minZ = it.z; }
@@ -1228,7 +1671,9 @@ function sanitize(o) {
   const n = (v, d = 0) => (typeof v === 'number' && isFinite(v)) ? v : d;
   const s = (v, d = '') => typeof v === 'string' ? v.slice(0, 20000) : d;
   const pick = (v, list, d) => list.includes(v) ? v : d;
-  const end = e => (e && typeof e.id === 'string' && e.id) ? { id: e.id } : { x: n(e && e.x), y: n(e && e.y) };
+  const end = e => (e && typeof e.id === 'string' && e.id) ? (e.pin ? { id: e.id, pin: true } : { id: e.id }) : { x: n(e && e.x), y: n(e && e.y) };
+  const ptsOf = (arr, max) => Array.isArray(arr) ? arr.filter(p => Array.isArray(p) && p.length >= 2).slice(0, max).map(p => [n(p[0]), n(p[1])]) : [];
+  const rot = normDeg(n(o.rot));
   const d = DEF[o.type];
   const it = {
     id: String(o.id || uid()).replace(/[^\w\-.~:@+]/g, '').slice(0, 64) || uid(),
@@ -1236,19 +1681,34 @@ function sanitize(o) {
     z: n(o.z), created: n(o.created)
   };
   switch (o.type) {
-    case 'note': it.text = s(o.text); it.color = pick(o.color, NOTE_COLORS, 'yellow'); break;
-    case 'text': it.text = s(o.text); it.fs = clamp(n(o.fs, 20), 8, 200); break;
-    case 'formula': it.src = s(o.src); it.fs = clamp(n(o.fs, 28), 8, 200); break;
+    case 'note': it.text = s(o.text); it.color = cleanColor(o.color, NOTE_PRESETS, 'yellow'); if (rot) it.rot = rot; break;
+    case 'text': it.text = s(o.text); it.fs = clamp(n(o.fs, 20), 1, 100); if (rot) it.rot = rot; break;
+    case 'formula': it.src = s(o.src); it.fs = clamp(n(o.fs, 28), 1, 160); if (rot) it.rot = rot; break;
     case 'calc': it.src = s(o.src); break;
-    case 'shape': it.kind = pick(o.kind, SHAPES, 'rect'); it.text = s(o.text); it.color = pick(o.color, INKS, 'blue'); break;
+    case 'shape': {
+      it.text = s(o.text);
+      it.stroke = cleanColor(o.stroke, INK_PRESETS, cleanColor(o.color, INK_PRESETS, 'blue'));
+      it.fill = cleanColor(o.fill, INK_PRESETS, 'tint', ['tint', 'none']);
+      it.sw = clamp(n(o.sw, 2), 0, 20);
+      if (o.kind === 'ellipse') { it.kind = 'ellipse'; if (rot) it.rot = rot; }
+      else {
+        it.kind = 'poly';
+        let pp = ptsOf(o.pts, 64);
+        if (pp.length < 3) pp = o.kind === 'triangle' ? triPts(it.w, it.h) : o.kind === 'diamond' ? [[it.w / 2, 0], [it.w, it.h / 2], [it.w / 2, it.h], [0, it.h / 2]] : rectPts(it.w, it.h);
+        it.pts = pp; normalizePoly(it);
+        it.rad = clamp(n(o.rad, 0), 0, 400);
+        if (o.reg === true) it.reg = true;
+      }
+      break;
+    }
     case 'frame': it.title = s(o.title, 'Раздел').slice(0, 120); break;
-    case 'arrow': it.a = end(o.a); it.b = end(o.b); it.label = s(o.label).slice(0, 200); it.color = pick(o.color, INKS, 'ink'); break;
+    case 'arrow': it.a = end(o.a); it.b = end(o.b); it.label = s(o.label).slice(0, 200); it.color = cleanColor(o.color, INK_PRESETS, 'ink'); it.head = o.head !== false; it.style = pick(o.style, ARROW_STYLES, 'solid'); it.ma = o.ma !== false; it.mb = o.mb !== false; break;
     case 'stroke':
-      it.pts = Array.isArray(o.pts) ? o.pts.filter(p => Array.isArray(p) && p.length >= 2).slice(0, 5000).map(p => [n(p[0]), n(p[1])]) : [];
-      it.color = pick(o.color, INKS, 'ink'); it.width = clamp(n(o.width, 3), 1, 40); break;
+      it.pts = ptsOf(o.pts, 5000);
+      it.color = cleanColor(o.color, INK_PRESETS, 'ink'); it.width = clamp(n(o.width, 3), 1, 40); break;
     case 'graph': {
       const fns = Array.isArray(o.fns) ? o.fns.slice(0, 12) : [];
-      it.fns = fns.map(f => ({ e: s(f && f.e).slice(0, 500), c: pick(f && f.c, FN_COLORS, 'blue'), on: !(f && f.on === false) }));
+      it.fns = fns.map(f => ({ e: s(f && f.e).slice(0, 500), c: cleanColor(f && f.c, INK_PRESETS, 'blue'), on: !(f && f.on === false) }));
       it.params = {};
       if (o.params && typeof o.params === 'object') for (const k of Object.keys(o.params).slice(0, 30)) {
         const p = o.params[k];
@@ -1256,7 +1716,7 @@ function sanitize(o) {
       }
       const v = o.view || {};
       it.view = { cx: n(v.cx), cy: n(v.cy), kx: clamp(n(v.kx, 40) || 40, 1e-6, 1e8), ky: clamp(n(v.ky, 40) || 40, 1e-6, 1e8) };
-      it.marks = o.marks !== false; break;
+      it.marks = o.marks !== false; it.inter = o.inter !== false; if (o.polar === true) it.polar = true; break;
     }
   }
   return it;
@@ -1277,7 +1737,8 @@ function deleteItems(ids) {
   for (const id of set) removeLocal(id);
   requestArrows(); buildCtx(); commit();
 }
-function boxOf(it) {
+function boxOf(it) { const b = baseBox(it); return it.rot ? rotBox(b, it.rot) : b; }
+function baseBox(it) {
   if (it.type === 'arrow') { const g = arrowGeom(it); return { x: Math.min(g.x1, g.x2), y: Math.min(g.y1, g.y2), w: Math.abs(g.x2 - g.x1), h: Math.abs(g.y2 - g.y1) }; }
   const g = eff(it);
   if (it.type === 'stroke' || it.type === 'frame' || it.type === 'graph' || it.type === 'shape') return { x: g.x, y: g.y, w: g.w, h: g.h };
@@ -1303,7 +1764,7 @@ function frameChildren(fr) {
 function endTarget(end) { return end && end.id ? S.items.get(end.id) : null; }
 function centerOf(end) {
   const t = endTarget(end);
-  if (t && t.type !== 'arrow') { const b = boxOf(t); return { x: b.x + b.w / 2, y: b.y + b.h / 2 }; }
+  if (t && t.type !== 'arrow') { if (end.pin && t.type === 'note') return pinPoint(t); const b = boxOf(t); return { x: b.x + b.w / 2, y: b.y + b.h / 2 }; }
   return { x: end.x || 0, y: end.y || 0 };
 }
 function rectEdge(b, t, gap) {
@@ -1314,7 +1775,7 @@ function rectEdge(b, t, gap) {
 }
 function anchorPt(end, toward) {
   const t = endTarget(end);
-  if (t && t.type !== 'arrow') return rectEdge(boxOf(t), toward, 7);
+  if (t && t.type !== 'arrow') { if (end.pin && t.type === 'note') return pinPoint(t); return rectEdge(boxOf(t), toward, 7); }
   return { x: end.x || 0, y: end.y || 0 };
 }
 function arrowGeom(it) {
@@ -1360,27 +1821,49 @@ function renderItem(it) {
   syncHandle(el, it);
 }
 function syncHandle(el, it) {
-  const want = S.sel.size === 1 && S.sel.has(it.id) && RESIZABLE.has(it.type) && S.editing !== it.id;
+  const want = S.sel.size === 1 && S.sel.has(it.id) && RESIZABLE.has(it.type) && !isBaked(it) && S.editing !== it.id && S.tool === 'select';
   let h = el.querySelector(':scope > .handle');
-  if (want && !h) { h = document.createElement('div'); h.className = 'handle'; el.appendChild(h); }
+  if (want && !h) { h = document.createElement('div'); h.className = 'handle'; h.title = 'Размер от центра (Shift — пропорционально)'; el.appendChild(h); }
   else if (!want && h) h.remove();
+}
+const ARROW_STYLES = ['solid', 'dashdot', 'dash', 'wave'];
+function selOneOf(it) { return S.sel.size === 1 && S.sel.has(it.id) && S.tool === 'select'; }
+function wavePath(x1, y1, x2, y2) {
+  const L = Math.hypot(x2 - x1, y2 - y1);
+  if (L < 8) return 'M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2;
+  const ux = (x2 - x1) / L, uy = (y2 - y1) / L, nx = -uy, ny = ux, A = 4.5;
+  const halves = Math.max(2, Math.round(L / 8)), seg = L / halves, steps = halves * 6;
+  let d = 'M' + r1(x1) + ' ' + r1(y1);
+  for (let i = 1; i <= steps; i++) { const s = i / steps * L, off = A * Math.sin(Math.PI * s / seg); d += 'L' + r1(x1 + ux * s + nx * off) + ' ' + r1(y1 + uy * s + ny * off); }
+  return d;
+}
+function endHandle(k, x, y, mag, att) {
+  return '<div class="ah' + (mag ? ' mag' : '') + (att ? ' att' : '') + '" data-end="' + k + '" style="left:' + x + 'px;top:' + y + 'px" title="' +
+    (k === 'a' ? 'Начало' : 'Конец') + ': тяните, чтобы переместить' + (mag ? ' · магнит включён' : ' · магнит выключен') + '"></div>';
 }
 const R = {
   note(it, el) {
     const g = eff(it), text = liveText(it, 'text');
     pos(el, it); el.style.width = g.w + 'px'; el.style.minHeight = g.h + 'px';
-    el.dataset.color = it.color;
+    applyRot(el, it);
+    const custom = isCustom(it.color);
+    el.dataset.color = custom ? 'custom' : it.color;
+    el.style.background = custom ? it.color : '';
+    let fg = '';
+    if (custom) { const c = toRGBA(it.color); if (c.a > 0.45 && lumOf(c) < 0.5) fg = '#FFFFFF'; }
+    el.style.color = fg;
     if (S.editing === it.id) return;
     const asking = S.asking.has(it.id);
     const k = text + (asking ? '\u0001' : '');
     if (el._k === k) return;
     el._k = k;
-    el.innerHTML = '<div class="rt">' + (text ? rich(text) : '<span class="ph">' + (asking ? 'Claude думает…' : 'Двойной щелчок — писать') + '</span>') + '</div>' +
+    el.innerHTML = '<div class="pin" title="Закрепка: потяните от неё, чтобы провести стрелку"></div><div class="rt">' + (text ? rich(text) : '<span class="ph">' + (asking ? 'Claude думает…' : 'Двойной щелчок — писать') + '</span>') + '</div>' +
       (asking ? '<button class="ask-stop" data-ui data-act="stop-ask">Стоп</button>' : '');
   },
   text(it, el) {
     const g = eff(it), text = liveText(it, 'text');
     pos(el, it); el.style.width = g.w + 'px'; el.style.fontSize = it.fs + 'px';
+    applyRot(el, it);
     if (S.editing === it.id) return;
     const k = text;
     if (el._k === k) return;
@@ -1390,6 +1873,7 @@ const R = {
   formula(it, el) {
     const src = liveText(it, 'src');
     pos(el, it); el.style.fontSize = it.fs + 'px';
+    applyRot(el, it);
     if (S.editing === it.id) return;
     const val = formulaValue(src);
     const k = src + '\u0000' + val;
@@ -1402,18 +1886,41 @@ const R = {
   shape(it, el) {
     const g = eff(it), text = liveText(it, 'text');
     pos(el, it); el.style.width = g.w + 'px'; el.style.height = g.h + 'px';
-    el.dataset.color = it.color;
+    applyRot(el, it);
+    el.style.setProperty('--sfill', fillCss(it));
+    el.style.setProperty('--sstroke', cssColor(it.stroke));
+    el.style.setProperty('--ssw', (it.sw == null ? 2 : it.sw) + 'px');
     if (S.editing === it.id) return;
-    const k = it.kind + '\u0000' + text;
+    const selOne = selOneOf(it);
+    const showAng = !!(drag && drag.kind === 'vertex' && drag.id === it.id);
+    const k = [it.kind, text, g.w, g.h, it.kind === 'poly' ? stable(it.pts) : '', it.rad || 0, selOne, showAng, showAng ? S.cam.z : 0].join('|');
     if (el._k === k) return;
     el._k = k;
-    const shp = {
-      rect: '<rect x="0" y="0" width="100" height="100" rx="4"/>',
-      ellipse: '<ellipse cx="50" cy="50" rx="50" ry="50"/>',
-      diamond: '<path d="M50 0 100 50 50 100 0 50Z"/>',
-      triangle: '<path d="M50 0 100 100H0Z"/>'
-    }[it.kind];
-    el.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + shp + '</svg><div class="rt">' + rich(text) + '</div>';
+    const W = r1(g.w), H = r1(g.h);
+    let h = '<svg class="sh" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">';
+    if (it.kind === 'ellipse') h += '<ellipse class="body" cx="' + r1(W / 2) + '" cy="' + r1(H / 2) + '" rx="' + r1(W / 2) + '" ry="' + r1(H / 2) + '"/>';
+    else h += '<path class="body" d="' + polyPath(it.pts, it.rad || 0) + '"/>';
+    if (selOne && it.kind === 'ellipse') {
+      const fo = ellipseFoci(W, H);
+      h += '<path class="fline" d="M' + r1(fo[0][0]) + ' ' + r1(fo[0][1]) + 'L' + r1(fo[1][0]) + ' ' + r1(fo[1][1]) + '"/>';
+    }
+    h += '</svg><div class="rt">' + rich(text) + '</div>';
+    if (selOne && it.kind === 'ellipse') {
+      const fo = ellipseFoci(W, H), same = Math.hypot(fo[0][0] - fo[1][0], fo[0][1] - fo[1][1]) < 0.5;
+      const c = r1(Math.hypot(fo[0][0] - W / 2, fo[0][1] - H / 2));
+      h += '<div class="focus" style="left:' + r1(fo[0][0]) + 'px;top:' + r1(fo[0][1]) + 'px" title="Фокус"><span>' + (same ? 'F (круг)' : 'F₁') + '</span></div>';
+      if (!same) h += '<div class="focus" style="left:' + r1(fo[1][0]) + 'px;top:' + r1(fo[1][1]) + 'px" title="Фокус"><span>F₂ · c = ' + fmtNum(c, 1) + '</span></div>';
+    }
+    if (selOne && it.kind === 'poly') {
+      const n = it.pts.length;
+      it.pts.forEach((p, i) => { const q = it.pts[(i + 1) % n]; h += '<div class="eh" data-i="' + i + '" style="left:' + r1((p[0] + q[0]) / 2) + 'px;top:' + r1((p[1] + q[1]) / 2) + 'px" title="Добавить вершину"></div>'; });
+      it.pts.forEach((p, i) => { h += '<div class="vh" data-i="' + i + '" style="left:' + p[0] + 'px;top:' + p[1] + 'px" title="Тяните вершину · двойной щелчок — удалить"></div>'; });
+    }
+    if (showAng && it.kind === 'poly') {
+      const off = 26 / S.cam.z;
+      polyAngles(it.pts).forEach((a, i) => { const p = it.pts[i]; h += '<div class="ang" style="left:' + r1(p[0] + a.ux * off) + 'px;top:' + r1(p[1] + a.uy * off) + 'px">' + fmtNum(a.deg, 1) + '°</div>'; });
+    }
+    el.innerHTML = h;
   },
   frame(it, el) {
     const g = eff(it);
@@ -1428,27 +1935,33 @@ const R = {
     const minx = Math.min(g.x1, g.x2) - pad, miny = Math.min(g.y1, g.y2) - pad;
     const W = Math.abs(g.x2 - g.x1) + 2 * pad, H = Math.abs(g.y2 - g.y1) + 2 * pad;
     el.style.left = minx + 'px'; el.style.top = miny + 'px'; el.style.width = W + 'px'; el.style.height = H + 'px';
-    el.dataset.color = it.color;
+    el.style.setProperty('--sc', cssColor(it.color));
     if (S.editing === it.id) return;
+    const selOne = selOneOf(it), head = it.head !== false, st = it.style || 'solid';
     const ax = r1(g.x1 - minx), ay = r1(g.y1 - miny), bx = r1(g.x2 - minx), by = r1(g.y2 - miny);
-    const k = [ax, ay, bx, by, W | 0, H | 0, it.label].join(',');
+    const k = [ax, ay, bx, by, W | 0, H | 0, it.label, head, st, selOne, it.ma !== false, it.mb !== false, !!it.a.id, !!it.b.id].join(',');
     if (el._k === k) return;
     el._k = k;
     const len = Math.hypot(bx - ax, by - ay) || 1, ux = (bx - ax) / len, uy = (by - ay) / len, hs = 11;
-    const lx = r1(bx - ux * hs * 0.75), ly = r1(by - uy * hs * 0.75);
+    const ex = head ? r1(bx - ux * hs * 0.75) : bx, ey = head ? r1(by - uy * hs * 0.75) : by;
     const p1 = r1(bx - ux * hs - uy * hs * 0.45) + ' ' + r1(by - uy * hs + ux * hs * 0.45);
     const p2 = r1(bx - ux * hs + uy * hs * 0.45) + ' ' + r1(by - uy * hs - ux * hs * 0.45);
-    el.innerHTML = '<svg width="' + (W | 0) + '" height="' + (H | 0) + '"><path class="halo" d="M' + ax + ' ' + ay + 'L' + lx + ' ' + ly + '"/><path class="hit" d="M' + ax + ' ' + ay + 'L' + bx + ' ' + by + '"/><path class="ln" d="M' + ax + ' ' + ay + 'L' + lx + ' ' + ly + '"/><path class="hd" d="M' + bx + ' ' + by + 'L' + p1 + 'L' + p2 + 'Z"/></svg>' +
+    const line = st === 'wave' ? wavePath(ax, ay, ex, ey) : 'M' + ax + ' ' + ay + 'L' + ex + ' ' + ey;
+    const dash = st === 'dash' ? ' stroke-dasharray="8 6"' : st === 'dashdot' ? ' stroke-dasharray="12 5 2 5"' : '';
+    let h = '<svg width="' + (W | 0) + '" height="' + (H | 0) + '"><path class="halo" d="M' + ax + ' ' + ay + 'L' + ex + ' ' + ey + '"/><path class="hit" d="M' + ax + ' ' + ay + 'L' + bx + ' ' + by + '"/><path class="ln" d="' + line + '"' + dash + '/>' +
+      (head ? '<path class="hd" d="M' + bx + ' ' + by + 'L' + p1 + 'L' + p2 + 'Z"/>' : '') + '</svg>' +
       (it.label ? '<div class="arr-label" style="left:' + r1((ax + bx) / 2) + 'px;top:' + r1((ay + by) / 2) + 'px">' + rich(it.label) + '</div>' : '');
+    if (selOne) h += endHandle('a', ax, ay, it.ma !== false, !!it.a.id) + endHandle('b', bx, by, it.mb !== false, !!it.b.id);
+    el.innerHTML = h;
   },
   stroke(it, el) {
     const pad = it.width / 2 + 6;
     const g = eff(it);
     el.style.left = (g.x - pad) + 'px'; el.style.top = (g.y - pad) + 'px';
     el.style.width = (it.w + 2 * pad) + 'px'; el.style.height = (it.h + 2 * pad) + 'px';
-    el.dataset.color = it.color;
-    const p0 = it.pts[0] || [0, 0], pn = it.pts[it.pts.length - 1] || [0, 0];
-    const k = [it.pts.length, it.width, r1(it.w), r1(it.h), p0[0], p0[1], pn[0], pn[1]].join(',');
+    el.style.setProperty('--sc', cssColor(it.color));
+    const p0 = it.pts[0] || [0, 0], pn = it.pts[it.pts.length - 1] || [0, 0], pm = it.pts[it.pts.length >> 1] || [0, 0];
+    const k = [it.pts.length, it.width, r1(it.w), r1(it.h), p0[0], p0[1], pn[0], pn[1], pm[0], pm[1]].join(',');
     if (el._k === k) return;
     el._k = k;
     const d = smoothPath(it.pts, pad, pad);
@@ -1462,7 +1975,7 @@ const R = {
       const plot = el.querySelector('.g-plot'); if (plot) ro.observe(plot);
     }
     syncGraphUI(it, el);
-    const dk = [stable(it.fns), stable(it.params), stable(it.view), it.marks, g.w, g.h, S.scopeVer, S.themeVer, S.hiresVer].join('|');
+    const dk = [stable(it.fns), stable(it.params), stable(it.view), it.marks, it.inter, it.polar, g.w, g.h, S.scopeVer, S.themeVer, S.hiresVer].join('|');
     if (el._dk !== dk) { el._dk = dk; drawGraph(it, el); }
   },
   calc(it, el) {
@@ -1501,6 +2014,7 @@ function smoothPath(pts, ox, oy) {
 }
 const ICON_HOME = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>';
 const GRAPH_HTML = '<div class="card"><div class="card-h"><span class="card-t">График</span><span class="card-sp"></span>' +
+  '<button class="hb hb-t" data-ui data-act="polar" aria-label="Полярные координаты">r,θ</button>' +
   '<button class="hb" data-ui data-act="zin" title="Приблизить" aria-label="Приблизить">+</button>' +
   '<button class="hb" data-ui data-act="zout" title="Отдалить" aria-label="Отдалить">−</button>' +
   '<button class="hb" data-ui data-act="home" title="Исходный вид" aria-label="Исходный вид">' + ICON_HOME + '</button></div>' +
@@ -1517,6 +2031,7 @@ function colors() {
   colorCache = { ink: g('--c-ink'), blue: g('--c-blue'), red: g('--c-red'), green: g('--c-green'), orange: g('--c-orange'), purple: g('--c-purple'), muted: g('--muted'), line: g('--line'), panel: g('--panel'), text: g('--ink') };
   return colorCache;
 }
+const INEQ_FN = { smaller: -1, smallerEq: -1, larger: 1, largerEq: 1 };
 function classify(src) {
   const s = prep(src);
   if (!s) return { kind: 'empty' };
@@ -1526,10 +2041,12 @@ function classify(src) {
     if (parts.length === 2) {
       const [L, Rr] = parts;
       if (!L || !Rr) throw new Error('Пустая сторона уравнения');
+      const Lc = L.replace(/\s+/g, '');
+      if (Lc === 'r') { const node = math.parse(Rr); return { kind: 'polar', code: node.compile(), syms: symbolsOf(node), label: 'r' }; }
       const sp = lhsSpecial(L);
-      if (L === 'y' || (sp && sp.primes && (sp.args == null || sp.args === 'x'))) {
+      if (Lc === 'y' || (sp && sp.primes && (sp.args == null || sp.args === 'x'))) {
         const node = math.parse(Rr);
-        return { kind: 'explicit', code: node.compile(), syms: symbolsOf(node), label: L.replace(/\s+/g, '') };
+        return { kind: 'explicit', code: node.compile(), syms: symbolsOf(node), label: Lc };
       }
       if (sp && !sp.primes && sp.args === 'x') {
         const node = math.parse(Rr);
@@ -1540,11 +2057,17 @@ function classify(src) {
     }
     const node = math.parse(parts[0]);
     const syms = symbolsOf(node);
+    if (node.isOperatorNode && INEQ_FN[node.fn] && node.args.length === 2) {
+      const g = math.parse('(' + node.args[0].toString() + ') - (' + node.args[1].toString() + ')');
+      return { kind: 'ineq', code: g.compile(), sense: INEQ_FN[node.fn], strict: node.fn === 'smaller' || node.fn === 'larger', syms };
+    }
+    if (node.isRelationalNode) return { kind: 'ineq', bool: node.compile(), syms };
     if (node.isArrayNode && node.items.length === 2) {
       if (syms.has('t')) return { kind: 'param', code: node.compile(), syms };
       return { kind: 'point', code: node.compile(), syms };
     }
     if (syms.has('y')) return { kind: 'implicit', code: node.compile(), syms };
+    if (syms.has('theta') && !syms.has('x')) return { kind: 'polar', code: node.compile(), syms, label: 'r' };
     return { kind: 'explicit', code: node.compile(), syms };
   } catch (e) { return { kind: 'error', err: e.message || 'Ошибка' }; }
 }
@@ -1556,6 +2079,7 @@ function analyzeGraph(it) {
   const defs = new Set(rows.filter(r => r.def).map(r => r.def));
   const free = [];
   for (const r of rows) for (const s of (r.syms || [])) {
+    if (s === 'r' && (r.kind === 'implicit' || r.kind === 'ineq')) continue;
     if (LOCALVARS.has(s) || CONST.has(s) || defs.has(s) || (s in S.scope) || free.includes(s)) continue;
     free.push(s);
   }
@@ -1567,8 +2091,11 @@ function paramOf(it, n) {
   if (!it.params[n]) it.params[n] = { v: 1, min: -5, max: 5 };
   return it.params[n];
 }
+const EYE = '<svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 function syncGraphUI(it, el) {
   const an = analyzeGraph(it);
+  const pb = el.querySelector('[data-act="polar"]');
+  if (pb) { pb.classList.toggle('on', !!it.polar); pb.title = it.polar ? 'Полярные координаты (r, θ). Нажмите для декартовых' : 'Декартовы координаты. Нажмите для полярных (r, θ)'; }
   const rowsEl = el.querySelector('.g-rows');
   while (rowsEl.children.length > it.fns.length) rowsEl.lastChild.remove();
   it.fns.forEach((f, i) => {
@@ -1576,18 +2103,20 @@ function syncGraphUI(it, el) {
     if (!row) {
       row = document.createElement('div');
       row.className = 'g-row';
-      row.innerHTML = '<button class="g-dot" data-ui data-act="dot" title="Показать или скрыть" aria-label="Показать или скрыть"></button>' +
-        '<input class="g-in" data-ui spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="например, sin(x)" aria-label="Функция">' +
+      row.innerHTML = '<button class="g-dot" data-ui data-act="fcolor" title="Цвет линии" aria-label="Цвет линии"></button>' +
+        '<input class="g-in" data-ui spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="sin(x), y > x^2, r = 2cos(θ)" aria-label="Функция">' +
+        '<button class="g-mini g-eye" data-ui data-act="dot" title="Показать или скрыть" aria-label="Показать или скрыть">' + EYE + '</button>' +
         '<button class="g-mini" data-ui data-act="deriv" title="Добавить производную" aria-label="Добавить производную">f′</button>' +
         '<button class="g-mini" data-ui data-act="del" title="Удалить строку" aria-label="Удалить строку">×</button>';
       rowsEl.appendChild(row);
     }
     row.dataset.i = i;
-    row.style.setProperty('--fc', 'var(--c-' + f.c + ')');
+    row.querySelector('.g-dot').dataset.pkkey = 'fcolor:' + it.id + ':' + i;
+    row.style.setProperty('--fc', cssColor(f.c));
     row.classList.toggle('off', !f.on);
     const r = an.rows[i];
     row.classList.toggle('err', r.kind === 'error');
-    row.title = r.kind === 'error' ? r.err : '';
+    row.title = r.kind === 'error' ? r.err : (r.kind === 'ineq' ? 'Неравенство: подходящая область закрашена' : r.kind === 'polar' ? 'Полярная кривая r(θ), θ от 0 до 2π' : '');
     const inp = row.querySelector('.g-in');
     if (document.activeElement !== inp && inp.value !== f.e) inp.value = f.e;
   });
@@ -1621,7 +2150,7 @@ function fmtTick(v, step) {
 }
 function graphScope(it, an) {
   const scope = Object.assign({}, S.scope);
-  delete scope.x; delete scope.y; delete scope.t;
+  delete scope.x; delete scope.y; delete scope.t; delete scope.theta;
   for (const n of an.params) scope[n] = paramOf(it, n).v;
   for (const r of an.rows) if (r.defCode) { try { r.defCode.evaluate(scope); } catch (e) { /* bad definition shows as error elsewhere */ } }
   return scope;
@@ -1632,6 +2161,71 @@ function evalVec(code, scope) {
   if (!Array.isArray(r) || r.length !== 2) return null;
   const f = v => num(Array.isArray(v) ? v[0] : v);
   return [f(r[0]), f(r[1])];
+}
+function drawCartGrid(ctx, W, H, X, Y, x0, x1, y0, y1, v, C) {
+  const stx = niceStep(90 / v.kx), sty = niceStep(90 / v.ky);
+  const grid = (sx, sy, color, alpha) => {
+    ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.beginPath();
+    for (let gx = Math.ceil(x0 / sx) * sx; gx <= x1; gx += sx) { const px = Math.round(X(gx)) + 0.5; ctx.moveTo(px, 0); ctx.lineTo(px, H); }
+    for (let gy = Math.ceil(y0 / sy) * sy; gy <= y1; gy += sy) { const py = Math.round(Y(gy)) + 0.5; ctx.moveTo(0, py); ctx.lineTo(W, py); }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  };
+  grid(stx / 5, sty / 5, C.line, 0.45);
+  grid(stx, sty, C.line, 1);
+  ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2; ctx.beginPath();
+  const ax = Math.round(X(0)) + 0.5, ay = Math.round(Y(0)) + 0.5;
+  if (ax >= 0 && ax <= W) { ctx.moveTo(ax, 0); ctx.lineTo(ax, H); }
+  if (ay >= 0 && ay <= H) { ctx.moveTo(0, ay); ctx.lineTo(W, ay); }
+  ctx.stroke();
+  ctx.font = '10.5px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = C.muted; ctx.textBaseline = 'top'; ctx.textAlign = 'center';
+  const ly = clamp(Y(0) + 4, 3, H - 14);
+  for (let gx = Math.ceil(x0 / stx) * stx; gx <= x1; gx += stx) { if (Math.abs(gx) < stx / 2) continue; const px = X(gx); if (px < 12 || px > W - 12) continue; ctx.fillText(fmtTick(gx, stx), px, ly); }
+  ctx.textBaseline = 'middle';
+  const lxRaw = X(0);
+  let lx, align;
+  if (lxRaw - 5 < 26) { lx = Math.max(lxRaw, 0) + 5; align = 'left'; } else { lx = Math.min(lxRaw, W) - 5; align = 'right'; }
+  ctx.textAlign = align;
+  for (let gy = Math.ceil(y0 / sty) * sty; gy <= y1; gy += sty) { if (Math.abs(gy) < sty / 2) continue; const py = Y(gy); if (py < 10 || py > H - 10) continue; ctx.fillText(fmtTick(gy, sty), lx, py); }
+}
+function drawPolarGrid(ctx, W, H, X, Y, v, C) {
+  const ox = X(0), oy = Y(0);
+  let rmax = 0, rmin = Infinity;
+  for (const [cx, cy] of [[0, 0], [W, 0], [0, H], [W, H]]) rmax = Math.max(rmax, Math.hypot(cx - ox, cy - oy));
+  const inside = ox >= 0 && ox <= W && oy >= 0 && oy <= H;
+  rmin = inside ? 0 : Math.max(0, Math.hypot(clamp(ox, 0, W) - ox, clamp(oy, 0, H) - oy));
+  const st = niceStep(90 / v.kx);
+  const circles = (step, alpha) => {
+    const from = Math.max(step, Math.floor(rmin / v.kx / step) * step), to = rmax / v.kx;
+    if ((to - from) / step > 400) return;
+    ctx.globalAlpha = alpha; ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath();
+    for (let r = from; r <= to; r += step) { ctx.moveTo(ox + r * v.kx, oy); ctx.ellipse(ox, oy, r * v.kx, r * v.ky, 0, 0, Math.PI * 2); }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  };
+  circles(st / 5, 0.45); circles(st, 1);
+  ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath();
+  for (let d = 0; d < 360; d += 15) {
+    const a = d * Math.PI / 180;
+    ctx.globalAlpha = 1;
+    ctx.moveTo(ox, oy); ctx.lineTo(ox + Math.cos(a) * rmax, oy - Math.sin(a) * rmax);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2; ctx.beginPath();
+  ctx.moveTo(ox - rmax, oy); ctx.lineTo(ox + rmax, oy); ctx.moveTo(ox, oy - rmax); ctx.lineTo(ox, oy + rmax);
+  ctx.stroke();
+  ctx.font = '10.5px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillStyle = C.muted; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let r = st; r * v.kx < rmax; r += st) { const px = ox + r * v.kx; if (px < 12 || px > W - 12 || oy + 4 > H - 14 || oy < -4) continue; ctx.fillText(fmtTick(r, st), px, oy + 4); }
+  if (!inside) return;
+  ctx.textBaseline = 'middle';
+  for (let d = 0; d < 360; d += 30) {
+    const a = d * Math.PI / 180, dx = Math.cos(a), dy = -Math.sin(a);
+    let t = Infinity;
+    if (dx > 1e-9) t = Math.min(t, (W - 16 - ox) / dx); else if (dx < -1e-9) t = Math.min(t, (16 - ox) / dx);
+    if (dy > 1e-9) t = Math.min(t, (H - 10 - oy) / dy); else if (dy < -1e-9) t = Math.min(t, (10 - oy) / dy);
+    if (!isFinite(t) || t < 30) continue;
+    ctx.fillText(d + '°', ox + dx * t, oy + dy * t);
+  }
 }
 function drawGraph(it, el) {
   const plot = el.querySelector('.g-plot');
@@ -1648,49 +2242,45 @@ function drawGraph(it, el) {
   const C = colors(), v = it.view;
   const X = x => (x - v.cx) * v.kx + W / 2, Y = y => H / 2 - (y - v.cy) * v.ky;
   const x0 = v.cx - W / 2 / v.kx, x1 = v.cx + W / 2 / v.kx, y0 = v.cy - H / 2 / v.ky, y1 = v.cy + H / 2 / v.ky;
-  const stx = niceStep(90 / v.kx), sty = niceStep(90 / v.ky);
-  const grid = (sx, sy, color, alpha) => {
-    ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.beginPath();
-    for (let gx = Math.ceil(x0 / sx) * sx; gx <= x1; gx += sx) { const px = Math.round(X(gx)) + 0.5; ctx.moveTo(px, 0); ctx.lineTo(px, H); }
-    for (let gy = Math.ceil(y0 / sy) * sy; gy <= y1; gy += sy) { const py = Math.round(Y(gy)) + 0.5; ctx.moveTo(0, py); ctx.lineTo(W, py); }
-    ctx.stroke(); ctx.globalAlpha = 1;
-  };
-  grid(stx / 5, sty / 5, C.line, 0.45);
-  grid(stx, sty, C.line, 1);
-  // axes
-  ctx.strokeStyle = C.muted; ctx.lineWidth = 1.2; ctx.beginPath();
-  const ax = Math.round(X(0)) + 0.5, ay = Math.round(Y(0)) + 0.5;
-  if (ax >= 0 && ax <= W) { ctx.moveTo(ax, 0); ctx.lineTo(ax, H); }
-  if (ay >= 0 && ay <= H) { ctx.moveTo(0, ay); ctx.lineTo(W, ay); }
-  ctx.stroke();
-  // labels
-  ctx.font = '10.5px "JetBrains Mono", ui-monospace, monospace';
-  ctx.fillStyle = C.muted; ctx.textBaseline = 'top'; ctx.textAlign = 'center';
-  const ly = clamp(Y(0) + 4, 3, H - 14);
-  for (let gx = Math.ceil(x0 / stx) * stx; gx <= x1; gx += stx) { if (Math.abs(gx) < stx / 2) continue; const px = X(gx); if (px < 12 || px > W - 12) continue; ctx.fillText(fmtTick(gx, stx), px, ly); }
-  ctx.textBaseline = 'middle';
-  const lxRaw = X(0);
-  let lx, align;
-  if (lxRaw - 5 < 26) { lx = Math.max(lxRaw, 0) + 5; align = 'left'; } else { lx = Math.min(lxRaw, W) - 5; align = 'right'; }
-  ctx.textAlign = align;
-  for (let gy = Math.ceil(y0 / sty) * sty; gy <= y1; gy += sty) { if (Math.abs(gy) < sty / 2) continue; const py = Y(gy); if (py < 10 || py > H - 10) continue; ctx.fillText(fmtTick(gy, sty), lx, py); }
-  // functions
+  if (it.polar) drawPolarGrid(ctx, W, H, X, Y, v, C); else drawCartGrid(ctx, W, H, X, Y, x0, x1, y0, y1, v, C);
   const an = analyzeGraph(it);
   const scope = graphScope(it, an);
-  const marks = [], data = [];
+  const marks = [], data = [], samples = [];
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
   an.rows.forEach((r, i) => {
     const f = it.fns[i];
-    if (!f || !f.on || r.kind === 'error' || r.kind === 'empty') return;
-    const col = C[f.c] || C.blue;
-    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2.2;
+    if (!f || !f.on || r.kind !== 'ineq') return;
+    try { plotIneq(ctx, r, scope, W, H, x0, y1, v.kx, v.ky, canvasColor(f.c)); } catch (e) { /* skip broken row */ }
+  });
+  an.rows.forEach((r, i) => {
+    const f = it.fns[i];
+    if (!f || !f.on || r.kind === 'error' || r.kind === 'empty' || r.kind === 'ineq') return;
+    const col = canvasColor(f.c);
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2.2; ctx.setLineDash([]);
     try {
       if (r.kind === 'explicit') {
         const s = plotExplicit(ctx, r.code, scope, W, H, Y, x0, v.kx);
+        samples.push({ s, X, Y });
         data.push({ i, code: r.code, color: col, label: r.label || ('y' + subIdx(i + 1)) });
         if (it.marks) findMarks(r.code, scope, s, marks, col, X, Y, W, H);
-      } else if (r.kind === 'implicit') plotImplicit(ctx, r.code, scope, W, H, x0, y1, v.kx, v.ky);
-      else if (r.kind === 'param') {
+      } else if (r.kind === 'implicit') {
+        const g = gridEval(r, scope, W, H, x0, y1, v.kx, v.ky, 5);
+        contour(ctx, g);
+      } else if (r.kind === 'polar') {
+        ctx.beginPath(); let pen = false, prev = null;
+        for (let k = 0; k <= 1440; k++) {
+          const th = k / 1440 * 2 * Math.PI;
+          scope.theta = th;
+          let rr; try { rr = num(r.code.evaluate(scope)); } catch (e) { rr = NaN; }
+          if (!isFinite(rr)) { pen = false; continue; }
+          const px = X(rr * Math.cos(th)), py = Y(rr * Math.sin(th));
+          if (pen && prev && Math.hypot(px - prev[0], py - prev[1]) > Math.max(W, H)) pen = false;
+          const cx = clamp(px, -W, 2 * W), cy = clamp(py, -H, 2 * H);
+          if (!pen) { ctx.moveTo(cx, cy); pen = true; } else ctx.lineTo(cx, cy);
+          prev = [px, py];
+        }
+        ctx.stroke(); delete scope.theta;
+      } else if (r.kind === 'param') {
         ctx.beginPath(); let pen = false;
         for (let k = 0; k <= 720; k++) {
           scope.t = k / 720 * 2 * Math.PI;
@@ -1714,12 +2304,14 @@ function drawGraph(it, el) {
     } catch (e) { /* skip broken row */ }
   });
   delete scope.x; delete scope.y;
+  if (it.inter !== false && samples.length > 1) findIntersections(samples, scope, marks, X, Y, W, H, C.text);
   for (const m of marks) {
     if (m.kind === 'point') continue;
-    ctx.beginPath(); ctx.arc(m.px, m.py, 3.8, 0, 7);
-    ctx.fillStyle = C.panel; ctx.fill(); ctx.strokeStyle = m.color; ctx.lineWidth = 1.8; ctx.stroke();
+    ctx.beginPath(); ctx.arc(m.px, m.py, m.kind === 'inter' ? 4.4 : 3.8, 0, 7);
+    if (m.kind === 'inter') { ctx.fillStyle = C.text; ctx.fill(); ctx.strokeStyle = C.panel; ctx.lineWidth = 1.6; ctx.stroke(); }
+    else { ctx.fillStyle = C.panel; ctx.fill(); ctx.strokeStyle = m.color; ctx.lineWidth = 1.8; ctx.stroke(); }
   }
-  el._g = { scope, data, marks, W, H, v: Object.assign({}, v) };
+  el._g = { scope, data, marks, W, H, v: Object.assign({}, v), polar: !!it.polar };
   const octx = over.getContext('2d'); octx.setTransform(1, 0, 0, 1, 0, 0); octx.clearRect(0, 0, over.width, over.height);
 }
 function subIdx(n) { return String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join(''); }
@@ -1782,18 +2374,55 @@ function findMarks(code, scope, s, marks, color, X, Y, W, H) {
   }
   delete scope.x;
 }
-function plotImplicit(ctx, code, scope, W, H, x0, ytop, kx, ky) {
-  const cell = 5, nx = Math.ceil(W / cell), ny = Math.ceil(H / cell), stride = nx + 1;
+function findIntersections(samples, scope, marks, X, Y, W, H) {
+  let count = 0;
+  for (let a = 0; a < samples.length; a++) for (let b = a + 1; b < samples.length; b++) {
+    const A = samples[a].s, B = samples[b].s, n = Math.min(A.xs.length, B.xs.length);
+    const h = x => A.f(x) - B.f(x);
+    for (let i = 1; i < n && count < 40; i++) {
+      const d0 = A.ys[i - 1] - B.ys[i - 1], d1 = A.ys[i] - B.ys[i];
+      if (!isFinite(d0) || !isFinite(d1)) continue;
+      if (Math.abs(Y(A.ys[i - 1]) - Y(A.ys[i])) > H || Math.abs(Y(B.ys[i - 1]) - Y(B.ys[i])) > H) continue;
+      let x;
+      if (d0 === 0) x = A.xs[i - 1];
+      else if (d0 * d1 < 0) {
+        let lo = A.xs[i - 1], hi = A.xs[i], flo = d0;
+        for (let k = 0; k < 55; k++) { const m = (lo + hi) / 2, fm = h(m); if (!isFinite(fm)) break; if (flo * fm <= 0) hi = m; else { lo = m; flo = fm; } }
+        x = (lo + hi) / 2;
+      } else continue;
+      const y = A.f(x);
+      if (!isFinite(y)) continue;
+      const px = X(x), py = Y(y);
+      if (px < 0 || px > W || py < 0 || py > H) continue;
+      if (marks.some(m => m.kind === 'inter' && Math.abs(m.px - px) < 2 && Math.abs(m.py - py) < 2)) continue;
+      marks.push({ px, py, x, y, kind: 'inter', color: null }); count++;
+    }
+  }
+  delete scope.x;
+}
+function gridEval(r, scope, W, H, x0, ytop, kx, ky, cell) {
+  const nx = Math.ceil(W / cell), ny = Math.ceil(H / cell), stride = nx + 1;
   const F = new Float64Array(stride * (ny + 1));
+  const syms = r.syms || new Set(), useR = syms.has('r'), useT = syms.has('theta');
   for (let j = 0; j <= ny; j++) {
-    scope.y = ytop - j * cell / ky;
+    const y = ytop - j * cell / ky; scope.y = y;
     for (let i = 0; i <= nx; i++) {
-      scope.x = x0 + i * cell / kx;
+      const x = x0 + i * cell / kx; scope.x = x;
+      if (useR) scope.r = Math.hypot(x, y);
+      if (useT) { let t = Math.atan2(y, x); if (t < 0) t += 2 * Math.PI; scope.theta = t; }
       let v;
-      try { v = num(code.evaluate(scope)); } catch (e) { v = NaN; }
+      try {
+        if (r.bool) v = r.bool.evaluate(scope) ? 1 : -1;
+        else { v = num(r.code.evaluate(scope)); if (r.sense) v *= r.sense; }
+      } catch (e) { v = NaN; }
       F[j * stride + i] = v;
     }
   }
+  delete scope.x; delete scope.y; if (useR) delete scope.r; if (useT) delete scope.theta;
+  return { F, nx, ny, stride, cell };
+}
+function contour(ctx, g) {
+  const { F, nx, ny, stride, cell } = g;
   ctx.beginPath();
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
     const a = F[j * stride + i], b = F[j * stride + i + 1], c = F[(j + 1) * stride + i + 1], d = F[(j + 1) * stride + i];
@@ -1806,9 +2435,34 @@ function plotImplicit(ctx, code, scope, W, H, x0, ytop, kx, ky) {
     for (let k = 0; k + 1 < pts.length; k += 2) { ctx.moveTo(pts[k][0] * cell, pts[k][1] * cell); ctx.lineTo(pts[k + 1][0] * cell, pts[k + 1][1] * cell); }
   }
   ctx.stroke();
-  delete scope.x; delete scope.y;
 }
-const MARK_LABEL = { root: 'корень', max: 'максимум', min: 'минимум', point: 'точка' };
+function plotIneq(ctx, r, scope, W, H, x0, ytop, kx, ky, col) {
+  const g = gridEval(r, scope, W, H, x0, ytop, kx, ky, 4);
+  const { F, nx, ny, stride, cell } = g;
+  ctx.save();
+  ctx.fillStyle = col; ctx.globalAlpha = 0.2;
+  for (let j = 0; j < ny; j++) {
+    let start = -1;
+    for (let i = 0; i <= nx; i++) {
+      let ok = false;
+      if (i < nx) {
+        const a = F[j * stride + i], b = F[j * stride + i + 1], c = F[(j + 1) * stride + i + 1], d = F[(j + 1) * stride + i];
+        const s = (isFinite(a) ? a : 0) + (isFinite(b) ? b : 0) + (isFinite(c) ? c : 0) + (isFinite(d) ? d : 0);
+        ok = isFinite(a) && s > 0;
+      }
+      if (ok && start < 0) start = i;
+      else if (!ok && start >= 0) { ctx.fillRect(start * cell, j * cell, (i - start) * cell, cell); start = -1; }
+    }
+  }
+  ctx.restore();
+  if (r.bool) return;
+  ctx.save();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.9;
+  if (r.strict) ctx.setLineDash([6, 5]);
+  contour(ctx, g);
+  ctx.restore();
+}
+const MARK_LABEL = { root: 'корень', max: 'максимум', min: 'минимум', point: 'точка', inter: 'пересечение' };
 function drawHover(el, px, py) {
   const g = el._g, over = el.querySelector('.g-over');
   if (!over) return;
@@ -1819,17 +2473,21 @@ function drawHover(el, px, py) {
   ctx.setTransform(sc, 0, 0, sc, 0, 0);
   const C = colors(), v = g.v, W = g.W, H = g.H;
   const Y = y => H / 2 - (y - v.cy) * v.ky;
-  const x = v.cx + (px - W / 2) / v.kx;
+  const x = v.cx + (px - W / 2) / v.kx, wy = v.cy - (py - H / 2) / v.ky;
   let near = null;
   for (const m of g.marks) if (Math.hypot(m.px - px, m.py - py) < 10) near = m;
   const lines = [];
   if (near) {
-    ctx.beginPath(); ctx.arc(near.px, near.py, 6.5, 0, 7); ctx.strokeStyle = near.color; ctx.lineWidth = 2; ctx.stroke();
-    lines.push({ t: MARK_LABEL[near.kind] + ' (' + fmtShort(near.x) + '; ' + fmtShort(near.y) + ')', c: near.color });
+    ctx.beginPath(); ctx.arc(near.px, near.py, 6.5, 0, 7); ctx.strokeStyle = near.color || C.text; ctx.lineWidth = 2; ctx.stroke();
+    lines.push({ t: MARK_LABEL[near.kind] + ' (' + fmtShort(near.x) + '; ' + fmtShort(near.y) + ')', c: near.color || C.text });
   } else {
     ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = C.muted; ctx.globalAlpha = 0.7; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(Math.round(px) + 0.5, 0); ctx.lineTo(Math.round(px) + 0.5, H); ctx.stroke(); ctx.restore();
-    lines.push({ t: 'x = ' + fmtShort(x), c: C.text });
+    if (g.polar) {
+      let th = Math.atan2(wy, x); if (th < 0) th += 2 * Math.PI;
+      lines.push({ t: 'r = ' + fmtShort(Math.hypot(x, wy)), c: C.text });
+      lines.push({ t: 'θ = ' + fmtShort(th * 180 / Math.PI) + '° = ' + fmtShort(th) + ' рад', c: C.text });
+    } else lines.push({ t: 'x = ' + fmtShort(x), c: C.text });
     for (const d of g.data) {
       let y; g.scope.x = x;
       try { y = num(d.code.evaluate(g.scope)); } catch (e) { y = NaN; }
@@ -1841,12 +2499,12 @@ function drawHover(el, px, py) {
     delete g.scope.x;
   }
   ctx.font = '11px "JetBrains Mono", ui-monospace, monospace';
-  const tw = Math.max(...lines.map(l => ctx.measureText(l.t).width)) + 16, th = lines.length * 16 + 10;
+  const tw = Math.max(...lines.map(l => ctx.measureText(l.t).width)) + 16, th2 = lines.length * 16 + 10;
   let bx = px + 12, by = 8;
   if (bx + tw > W - 4) bx = px - 12 - tw;
-  if (near) by = clamp(near.py - th - 10, 4, H - th - 4);
+  if (near) by = clamp(near.py - th2 - 10, 4, H - th2 - 4);
   ctx.fillStyle = C.panel; ctx.strokeStyle = C.line; ctx.lineWidth = 1;
-  ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, tw, th, 6); else ctx.rect(bx, by, tw, th); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, tw, th2, 6); else ctx.rect(bx, by, tw, th2); ctx.fill(); ctx.stroke();
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   lines.forEach((l, k) => { ctx.fillStyle = l.c; ctx.fillText(l.t, bx + 8, by + 6 + k * 16); });
 }
@@ -2108,60 +2766,151 @@ function showOverlay() {
   const loading = store.mode === 'init' || (store.mode === 'db' && !store.loaded && !S.items.size);
   loadingCard.hidden = !loading;
   if (loading && store.slow) loadingCard.querySelector('p').textContent = 'Хранилище доски пока не отвечает. Попробуйте открыть доску позже.';
-  emptyCard.hidden = loading || S.items.size > 0 || !!S.editing;
+  if (S.items.size) S.hadItems = true;
+  emptyCard.hidden = loading || S.items.size > 0 || !!S.editing || S.hadItems;
 }
 function updateEmpty() { showOverlay(); }
 
 // ---------- selection & context bar ----------
 function setSel(ids) {
+  const before = S.sel;
   S.sel = new Set(ids.filter(id => S.items.has(id)));
+  closePicker();
   for (const [id, el] of els) { el.classList.toggle('sel', S.sel.has(id)); const it = S.items.get(id); if (it) syncHandle(el, it); }
+  for (const id of new Set([...before, ...S.sel])) { const it = S.items.get(id); if (it && (it.type === 'shape' || it.type === 'arrow')) renderItem(it); }
   buildCtx();
   pres({ sel: [...S.sel].slice(0, 40) });
 }
 let ctxRaf = 0;
-function requestCtx() { if (ctxRaf) return; ctxRaf = requestAnimationFrame(() => { ctxRaf = 0; positionCtx(); }); }
+function requestCtx() { if (ctxRaf) return; ctxRaf = requestAnimationFrame(() => { ctxRaf = 0; positionCtx(); updateTbox(); }); }
 const ICONS = {
   front: '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 5V4H4v12h1"/></svg>',
   back: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="12" rx="2"/><path d="M20 9v11H9"/></svg>',
   dup: '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
-  del: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'
+  del: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  magnet: '<svg viewBox="0 0 24 24"><path d="M6 4v7a6 6 0 0 0 12 0V4"/><path d="M6 8h4M14 8h4"/></svg>',
+  arrowT: '<svg viewBox="0 0 24 24"><path d="M4 12h15M14 7l5 5-5 5"/></svg>',
+  lineT: '<svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>',
+  solid: '<svg viewBox="0 0 24 24"><path d="M3 12h18"/></svg>',
+  dashdot: '<svg viewBox="0 0 24 24"><path d="M3 12h6M12 12h.5M15.5 12h5.5"/></svg>',
+  dash: '<svg viewBox="0 0 24 24"><path d="M3 12h3M9 12h3M15 12h3M21 12h0"/></svg>',
+  wave: '<svg viewBox="0 0 24 24"><path d="M3 12c1.5-4 3-4 4.5 0s3 4 4.5 0 3-4 4.5 0 3 4 4.5 0"/></svg>',
+  reg: '<svg viewBox="0 0 24 24"><path d="M12 3.5 20 9.3l-3 9.2H7L4 9.3z"/></svg>'
 };
-function sw(cmd, c, on, bg) { return '<button class="sw' + (on ? ' on' : '') + '" data-cmd="' + cmd + ':' + c + '" style="background:' + bg + '" title="' + COLOR_NAME[c] + '" aria-label="' + COLOR_NAME[c] + '"></button>'; }
-const COLOR_NAME = { yellow: 'Жёлтый', green: 'Зелёный', blue: 'Синий', pink: 'Розовый', orange: 'Оранжевый', white: 'Белый', ink: 'Чернила', red: 'Красный', purple: 'Фиолетовый' };
+const STYLE_LABEL = { solid: 'Сплошная', dashdot: 'Штрих-пунктир', dash: 'Пунктир', wave: 'Волна' };
 let sampleFn = null;
+function colorBtn(cmd, value, kind, label, tintOf) {
+  const none = value === 'none';
+  const bg = none ? '' : swatchBg(value, kind, { tintOf: () => tintOf });
+  return '<button class="cbtn swb" data-cmd="pick:' + cmd + '" title="' + label + ': ' + (none ? 'нет' : esc(isCustom(value) ? value : (COLOR_NAME[value] || 'оттенок'))) + '"><i class="swc' + (none ? ' none' : '') + '" style="background:' + bg + '"></i>' + label + '</button>';
+}
+function typeButtons(head, cmd) {
+  return '<span class="cseg"><button class="cbtn' + (head ? ' on' : '') + '" data-cmd="' + cmd + ':1" title="Стрелка">' + ICONS.arrowT + 'Стрелка</button>' +
+    '<button class="cbtn' + (!head ? ' on' : '') + '" data-cmd="' + cmd + ':0" title="Простая прямая">' + ICONS.lineT + 'Прямая</button></span>';
+}
+function styleButtons(cur, cmd) {
+  return '<span class="cseg">' + ARROW_STYLES.map(s => '<button class="cbtn ic' + (cur === s ? ' on' : '') + '" data-cmd="' + cmd + ':' + s + '" title="' + STYLE_LABEL[s] + '" aria-label="' + STYLE_LABEL[s] + '">' + ICONS[s] + '</button>').join('') + '</span>';
+}
 function buildCtx() {
-  if (S.editing) { ctxEl.hidden = true; return; }
+  if (S.editing) { ctxEl.hidden = true; updateTbox(); return; }
   const sel = [...S.sel].map(id => S.items.get(id)).filter(Boolean);
   const sep = '<span class="csep"></span>';
   const parts = [];
   if (!sel.length) {
     if (S.tool === 'pen') {
-      parts.push(INKS.map(c => sw('pen-color', c, S.pen.color === c, 'var(--c-' + c + ')')).join(''));
+      parts.push(colorBtn('pen', S.pen.color, 'ink', 'Цвет'));
       parts.push([2, 3, 6, 12].map(w => '<button class="cbtn ic wbtn' + (S.pen.width === w ? ' on' : '') + '" data-cmd="pen-w:' + w + '" title="Толщина ' + w + '" aria-label="Толщина ' + w + '"><span style="height:' + Math.min(w, 10) + 'px"></span></button>').join(''));
+      parts.push('<label class="crange" title="Сглаживание штриха"><span>Сглаживание</span><input type="range" data-in="smooth" id="ctxSmooth" min="0" max="100" step="1" value="' + S.pen.smooth + '" aria-label="Сглаживание"><output>' + S.pen.smooth + '</output></label>');
+      parts.push('<span class="chint">Shift — по осям и 45°</span>');
     } else if (S.tool === 'shape') {
-      parts.push(SHAPES.map(k => '<button class="cbtn' + (S.shapeKind === k ? ' on' : '') + '" data-cmd="shape-tool:' + k + '">' + SHAPE_LABEL[k] + '</button>').join(''));
-    }
+      parts.push(SHAPE_TOOLS.map(k => '<button class="cbtn' + (S.shapeKind === k ? ' on' : '') + '" data-cmd="shape-tool:' + k + '">' + SHAPE_LABEL[k] + '</button>').join(''));
+      parts.push('<button class="cbtn' + (S.shapeReg ? ' on' : '') + '" data-cmd="shape-reg" title="Создавать правильные фигуры: квадрат, равносторонний треугольник, круг">' + ICONS.reg + 'Правильная</button>');
+      parts.push('<span class="chint">Shift — квадрат, круг, равносторонний</span>');
+    } else if (S.tool === 'arrow') {
+      parts.push(typeButtons(S.arrowDef.head, 'adef-head'));
+      parts.push(styleButtons(S.arrowDef.style, 'adef-style'));
+    } else if (S.tool === 'ruler') parts.push('<span class="chint">Клик — начало, второй клик — конец · Shift — шаг 45° · 1 клетка = 20 px при 100%</span>');
+    else if (S.tool === 'proto') parts.push('<span class="chint">1-й клик — вершина, 2-й — первый луч, 3-й — зафиксировать · Shift — шаг 15°</span>');
   } else {
     const one = sel.length === 1 ? sel[0] : null;
-    const types = new Set(sel.map(i => i.type));
-    if ([...types].every(t => t === 'note')) parts.push(NOTE_COLORS.map(c => sw('color', c, sel.every(i => i.color === c), 'var(--n-' + c + ')')).join(''));
-    else if ([...types].every(t => t === 'shape' || t === 'arrow' || t === 'stroke')) parts.push(INKS.map(c => sw('color', c, sel.every(i => i.color === c), 'var(--c-' + c + ')')).join(''));
-    if (one && one.type === 'shape') parts.push(SHAPES.map(k => '<button class="cbtn' + (one.kind === k ? ' on' : '') + '" data-cmd="kind:' + k + '">' + SHAPE_LABEL[k] + '</button>').join(''));
-    if (one && one.type === 'text') parts.push([['S', 16], ['M', 20], ['L', 28], ['XL', 40]].map(([l, fs]) => '<button class="cbtn' + (one.fs === fs ? ' on' : '') + '" data-cmd="fs:' + fs + '">' + l + '</button>').join(''));
+    const types = new Set(sel.map(i => i.type)), only = list => [...types].every(t => list.includes(t));
+    if (only(['note'])) parts.push(colorBtn('note', sel[0].color, 'note', 'Цвет'));
+    else if (only(['shape'])) parts.push(colorBtn('fill', sel[0].fill || 'tint', 'ink', 'Заливка', sel[0].stroke) + colorBtn('stroke', sel[0].stroke, 'ink', 'Обводка'));
+    else if (only(['shape', 'arrow', 'stroke'])) parts.push(colorBtn('color', sel[0].type === 'shape' ? sel[0].stroke : sel[0].color, 'ink', 'Цвет'));
+    if (one && one.type === 'shape' && one.kind === 'poly') {
+      parts.push('<label class="crange" title="Скругление углов"><span>Скругление</span><input type="range" data-in="rad" id="ctxRad" min="0" max="80" step="1" value="' + (one.rad || 0) + '" aria-label="Скругление углов"><output>' + (one.rad || 0) + '</output></label>');
+      parts.push('<span class="cgroup" title="Число вершин"><button class="cbtn ic" data-cmd="vtx:-1" title="Убрать вершину" aria-label="Убрать вершину">−</button><span class="cnum">' + one.pts.length + ' верш.</span><button class="cbtn ic" data-cmd="vtx:1" title="Добавить вершину" aria-label="Добавить вершину">+</button></span>');
+      parts.push('<button class="cbtn' + (one.reg ? ' on' : '') + '" data-cmd="reg" title="Правильный многоугольник: новые вершины сохраняют равные стороны и углы">' + ICONS.reg + 'Правильный</button>');
+    }
+    if (one && (one.type === 'text' || one.type === 'formula')) parts.push('<label class="cnumin" title="Размер шрифта, от 1 до 100"><span>Размер</span><input type="number" data-in="fs" id="ctxFs" min="1" max="100" step="1" value="' + Math.round(one.fs) + '" aria-label="Размер шрифта"></label>');
     if (one && one.type === 'formula' && formulaExpr(one.src)) parts.push('<button class="cbtn m" data-cmd="deriv" title="Производная">d/dx</button><button class="cbtn" data-cmd="simplify">Упростить</button><button class="cbtn" data-cmd="plot">График</button><button class="cbtn" data-cmd="roots">Корни</button>');
-    if (one && one.type === 'graph') parts.push('<button class="cbtn' + (one.marks ? ' on' : '') + '" data-cmd="marks">Корни и экстремумы</button>');
-    if (one && ['note', 'text', 'shape', 'formula', 'frame', 'arrow'].includes(one.type)) parts.push('<button class="cbtn" data-cmd="edit">' + (one.type === 'arrow' ? 'Подпись' : 'Изменить') + '</button>');
+    if (one && one.type === 'graph') parts.push('<button class="cbtn' + (one.marks ? ' on' : '') + '" data-cmd="marks">Корни и экстремумы</button><button class="cbtn' + (one.inter !== false ? ' on' : '') + '" data-cmd="inter">Пересечения</button>' +
+      '<span class="cseg"><button class="cbtn' + (!one.polar ? ' on' : '') + '" data-cmd="polar:0">Декартова</button><button class="cbtn' + (one.polar ? ' on' : '') + '" data-cmd="polar:1" title="Полярная (сферическая на плоскости): r и θ">Полярная</button></span>');
+    if (only(['arrow'])) {
+      parts.push(typeButtons(sel.every(i => i.head !== false), 'head'));
+      parts.push(styleButtons(sel.every(i => (i.style || 'solid') === (sel[0].style || 'solid')) ? (sel[0].style || 'solid') : '', 'astyle'));
+      if (one) parts.push('<span class="cseg"><button class="cbtn' + (one.ma !== false ? ' on' : '') + '" data-cmd="mag:a" title="Магнит начала: конец цепляется к объекту и едет вместе с ним">' + ICONS.magnet + 'Начало</button>' +
+        '<button class="cbtn' + (one.mb !== false ? ' on' : '') + '" data-cmd="mag:b" title="Магнит конца: конец цепляется к объекту и едет вместе с ним">' + ICONS.magnet + 'Конец</button></span>');
+    }
+    if (one && ['note', 'text', 'shape', 'formula', 'frame', 'arrow'].includes(one.type)) parts.push('<button class="cbtn" data-cmd="edit">' + (one.type === 'arrow' ? 'Подпись' : one.type === 'shape' ? 'Текст' : 'Изменить') + '</button>');
     if (sampleFn && sel.some(i => ASKABLE.has(i.type))) parts.push('<button class="cbtn ask" data-cmd="ask" title="Решить или объяснить выделенное">✦ Спросить Claude</button>');
     parts.push('<button class="cbtn ic" data-cmd="front" title="На передний план" aria-label="На передний план">' + ICONS.front + '</button>' +
       '<button class="cbtn ic" data-cmd="back" title="На задний план" aria-label="На задний план">' + ICONS.back + '</button>' +
       '<button class="cbtn ic" data-cmd="dup" title="Дублировать (Ctrl+D)" aria-label="Дублировать">' + ICONS.dup + '</button>' +
       '<button class="cbtn ic danger" data-cmd="del" title="Удалить (Delete)" aria-label="Удалить">' + ICONS.del + '</button>');
   }
-  if (!parts.length) { ctxEl.hidden = true; return; }
+  if (!parts.length) { ctxEl.hidden = true; updateTbox(); return; }
+  const focused = document.activeElement && ctxEl.contains(document.activeElement) ? document.activeElement.id : null;
   ctxEl.innerHTML = parts.join(sep);
   ctxEl.hidden = false;
+  if (focused) { const f = document.getElementById(focused); if (f) f.focus(); }
   positionCtx();
+  updateTbox();
+}
+function openColorFor(what, anchor) {
+  const sel = [...S.sel].map(id => S.items.get(id)).filter(Boolean), first = sel[0];
+  const rer = () => { for (const it of sel) { const el = els.get(it.id); if (el) el._k = null; renderItem(it); } requestArrows(); buildCtx(); };
+  const opts = { key: 'pick:' + what, kind: 'ink', presets: INK_PRESETS, onClose: () => { commit(); buildCtx(); } };
+  if (what === 'pen') {
+    Object.assign(opts, { title: 'Цвет карандаша', value: S.pen.color, onInput: c => { S.pen.color = c; savePrefs(); buildCtx(); }, onClose: () => buildCtx() });
+  } else if (!first) return;
+  else if (what === 'note') Object.assign(opts, { title: 'Цвет стикера', kind: 'note', presets: NOTE_PRESETS, value: first.color, onInput: c => { sel.forEach(it => { if (it.type === 'note') it.color = c; }); rer(); commitSoon(); } });
+  else if (what === 'fill') Object.assign(opts, { title: 'Заливка', value: first.fill || 'tint', allowNone: true, allowTint: true, tintOf: () => first.stroke, onInput: c => { sel.forEach(it => { if (it.type === 'shape') it.fill = c; }); rer(); commitSoon(); } });
+  else if (what === 'stroke') Object.assign(opts, { title: 'Обводка', value: first.stroke, onInput: c => { sel.forEach(it => { if (it.type === 'shape') it.stroke = c; }); rer(); commitSoon(); } });
+  else if (what === 'color') Object.assign(opts, { title: 'Цвет', value: first.type === 'shape' ? first.stroke : first.color, onInput: c => { sel.forEach(it => { if (it.type === 'shape') it.stroke = c; else if (it.type === 'arrow' || it.type === 'stroke') it.color = c; }); rer(); commitSoon(); } });
+  openPicker(anchor, opts);
+}
+function toggleMagnet(it, k) {
+  const key = k === 'a' ? 'ma' : 'mb';
+  if (it[key] !== false) {
+    if (it[k].id) { const g = arrowGeom(it); it[k] = k === 'a' ? { x: r1(g.x1), y: r1(g.y1) } : { x: r1(g.x2), y: r1(g.y2) }; }
+    it[key] = false;
+  } else {
+    it[key] = true;
+    if (!it[k].id) {
+      const p = it[k], other = it[k === 'a' ? 'b' : 'a'];
+      const hit = [...S.items.values()].filter(o => o.type !== 'arrow' && o.type !== 'stroke' && o.type !== 'frame' && o.id !== other.id && inBox(p, boxOf(o))).sort((a, b) => b.z - a.z)[0];
+      if (hit) it[k] = { id: hit.id };
+    }
+  }
+}
+function removeVertex(it, i) {
+  if (!it || it.kind !== 'poly') return false;
+  if (it.pts.length <= 3) { toast('У многоугольника должно быть хотя бы 3 вершины.'); return false; }
+  if (it.reg) regularizePoly(it, it.pts.length - 1);
+  else { it.pts.splice(i, 1); normalizePoly(it); }
+  return true;
+}
+function changeVertexCount(it, d) {
+  const n = it.pts.length;
+  if (d > 0) {
+    if (n >= 64) return;
+    if (it.reg) { regularizePoly(it, n + 1); return; }
+    let best = 0, bl = -1;
+    for (let i = 0; i < n; i++) { const p = it.pts[i], q = it.pts[(i + 1) % n], l = Math.hypot(q[0] - p[0], q[1] - p[1]); if (l > bl) { bl = l; best = i; } }
+    const p = it.pts[best], q = it.pts[(best + 1) % n];
+    it.pts.splice(best + 1, 0, [r1((p[0] + q[0]) / 2), r1((p[1] + q[1]) / 2)]);
+  } else removeVertex(it, n - 1);
 }
 function positionCtx() {
   if (ctxEl.hidden) return;
@@ -2170,16 +2919,20 @@ function positionCtx() {
   if (S.sel.size) {
     const b = selBox(); if (!b) return;
     const z = S.cam.z, sx = b.x * z + S.cam.x, sy = b.y * z + S.cam.y, sw2 = b.w * z, sh = b.h * z;
-    left = sx + sw2 / 2 - cw / 2; top = sy - chh - 16;
-    if (top < 64) top = sy + sh + 16;
-    if (top + chh > r.height - 76) top = clamp(sy - chh - 16, 64, r.height - chh - 76);
+    const knob = S.tool === 'select' && !S.editing && [...S.sel].some(id => { const it = S.items.get(id); return it && ROT_TYPES.has(it.type); });
+    const gapTop = knob ? 62 : 16, gapBot = knob ? 30 : 16;
+    left = sx + sw2 / 2 - cw / 2; top = sy - chh - gapTop;
+    if (top < 64) top = sy + sh + gapBot;
+    if (top + chh > r.height - 76) top = clamp(sy - chh - gapTop, 64, r.height - chh - 76);
   } else {
     const btn = toolbar.querySelector('[data-tool="' + S.tool + '"]');
     const tb = toolbar.getBoundingClientRect(), bb = btn ? btn.getBoundingClientRect() : tb;
     if (tb.width > tb.height) { left = bb.left - r.left + bb.width / 2 - cw / 2; top = tb.top - r.top - chh - 10; }
     else { left = tb.right - r.left + 10; top = bb.top - r.top + bb.height / 2 - chh / 2; }
   }
-  ctxEl.style.left = clamp(left, 16, Math.max(16, r.width - cw - 16)) + 'px';
+  const tbr = toolbar.getBoundingClientRect();
+  const minLeft = tbr.height > tbr.width && top < tbr.bottom - r.top && top + chh > tbr.top - r.top ? Math.max(16, tbr.right - r.left + 10) : 16;
+  ctxEl.style.left = clamp(left, minLeft, Math.max(minLeft, r.width - cw - 16)) + 'px';
   ctxEl.style.top = clamp(top, 60, Math.max(60, r.height - chh - 16)) + 'px';
 }
 
@@ -2187,9 +2940,11 @@ function positionCtx() {
 function setTool(t) {
   if (S.tool === t && t === 'select') return;
   S.tool = t;
+  clearMeasure(); closePicker();
   for (const b of toolbar.querySelectorAll('.tool')) b.setAttribute('aria-pressed', String(b.dataset.tool === t));
   viewport.dataset.tool = t;
-  if (t !== 'select' && S.sel.size) setSel([]); else buildCtx();
+  if (t !== 'select' && S.sel.size) setSel([]);
+  else { for (const id of S.sel) { const it = S.items.get(id); if (it && (it.type === 'shape' || it.type === 'arrow')) renderItem(it); } buildCtx(); }
 }
 function applyPrefs() {
   viewport.classList.toggle('grid-lines', S.grid === 'lines');
@@ -2197,7 +2952,14 @@ function applyPrefs() {
   $('#btnSnap').classList.toggle('on', S.snap);
   $('#btnSnap').setAttribute('aria-pressed', String(S.snap));
   $('#btnGrid').title = 'Сетка: ' + ({ lines: 'клетка', dots: 'точки', none: 'нет' })[S.grid] + '. Нажмите, чтобы сменить';
-  LS.set(PREFKEY, { grid: S.grid, snap: S.snap });
+  savePrefs();
+}
+function savePrefs() { LS.set(PREFKEY, { grid: S.grid, snap: S.snap, board: S.board, pen: S.pen }); }
+const BOARD_IDS = ['auto', 'white', 'black', 'blue', 'dkgreen', 'gray'];
+function applyBoard() {
+  if (S.board === 'auto') document.documentElement.removeAttribute('data-board'); else document.documentElement.setAttribute('data-board', S.board);
+  for (const b of document.querySelectorAll('#bgPop [data-bg]')) b.classList.toggle('on', b.dataset.bg === S.board);
+  themeChanged();
 }
 
 // ---------- editing ----------
@@ -2214,7 +2976,7 @@ function startEdit(id, isNew) {
   if (it.type === 'graph') { const inp = el.querySelector('.g-in'); if (inp) inp.focus(); return; }
   if (it.type === 'calc') { const ta = el.querySelector('.calc-src'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } return; }
   if (it.type === 'stroke') return;
-  S.editing = id; el.classList.add('editing'); syncHandle(el, it); showOverlay(); ctxEl.hidden = true;
+  S.editing = id; el.classList.add('editing'); syncHandle(el, it); showOverlay(); ctxEl.hidden = true; applyRot(el, it); updateTbox(); closePicker();
   pres({ edit: id, draft: null });
   const end = (apply) => {
     if (S.editing !== id) return;
@@ -2262,10 +3024,8 @@ function startEdit(id, isNew) {
   ta.className = 'ed'; ta.dataset.ui = ''; ta.value = it.text; ta.rows = 1; ta.spellcheck = true;
   ta.placeholder = it.type === 'note' ? 'Текст, формулы в $…$' : 'Текст';
   ta.setAttribute('aria-label', 'Текст');
-  [...el.childNodes].forEach(n => { if (!n.classList || !n.classList.contains('handle')) n.remove(); });
-  if (it.type === 'shape') {
-    el.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + ({ rect: '<rect x="0" y="0" width="100" height="100" rx="4"/>', ellipse: '<ellipse cx="50" cy="50" rx="50" ry="50"/>', diamond: '<path d="M50 0 100 50 50 100 0 50Z"/>', triangle: '<path d="M50 0 100 100H0Z"/>' })[it.kind] + '</svg>';
-  }
+  if (it.type === 'shape') el.querySelectorAll('.rt, .vh, .eh, .focus, .ang, .handle').forEach(n => n.remove());
+  else [...el.childNodes].forEach(n => { if (!n.classList || !n.classList.contains('handle')) n.remove(); });
   el.appendChild(ta);
   const size = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
   size(); ta.addEventListener('input', () => { size(); requestArrows(); pres({ draft: cutBytes(ta.value, 1000) }); });
@@ -2283,7 +3043,12 @@ function createAt(tool, w, rect) {
     case 'formula': it = newItem('formula', w.x - 12, w.y - 24); break;
     case 'graph': it = newItem('graph', w.x - 230, w.y - 190); break;
     case 'calc': it = newItem('calc', w.x - 190, w.y - 50, { src: '' }); break;
-    case 'shape': it = rect ? newItem('shape', rect.x, rect.y, { w: rect.w, h: rect.h, kind: S.shapeKind }) : newItem('shape', w.x - 90, w.y - 55, { kind: S.shapeKind }); break;
+    case 'shape': {
+      const kind = S.shapeKind, reg = S.shapeReg;
+      const dw = 180, dh = kind === 'triangle' ? Math.round(180 * SQ3) : (reg ? 180 : 110);
+      it = makeShape(kind, rect || { x: w.x - dw / 2, y: w.y - dh / 2, w: dw, h: dh }, reg && kind !== 'ellipse');
+      break;
+    }
     case 'frame': it = rect ? newItem('frame', rect.x, rect.y, { w: rect.w, h: rect.h }) : newItem('frame', w.x - 320, w.y - 210); break;
     default: return null;
   }
@@ -2291,7 +3056,7 @@ function createAt(tool, w, rect) {
   addItem(it);
   setTool('select');
   setSel([it.id]);
-  if (['note', 'text', 'formula', 'shape'].includes(tool)) startEdit(it.id, true);
+  if (['note', 'text', 'formula'].includes(tool)) startEdit(it.id, true);
   else if (tool === 'calc' || tool === 'graph') { commit(); startEdit(it.id); }
   else commit();
   showOverlay();
@@ -2465,7 +3230,7 @@ function addItems(list, dx, dy) {
   for (const it of sorted) {
     if (it.type === 'arrow') {
       for (const k of ['a', 'b']) {
-        if (it[k].id) { if (map.has(it[k].id)) it[k] = { id: map.get(it[k].id) }; else if (!S.items.has(it[k].id)) it[k] = { x: dx, y: dy }; }
+        if (it[k].id) { if (map.has(it[k].id)) it[k] = it[k].pin ? { id: map.get(it[k].id), pin: true } : { id: map.get(it[k].id) }; else if (!S.items.has(it[k].id)) it[k] = { x: dx, y: dy }; }
         else it[k] = { x: it[k].x + dx, y: it[k].y + dy };
       }
     } else { it.x = Math.round(it.x + dx); it.y = Math.round(it.y + dy); }
@@ -2507,6 +3272,188 @@ function insertTemplate() {
 }
 function exportData() { return JSON.stringify({ app: 'lemma', v: 1, title: S.title, items: [...S.items.values()] }, null, 1); }
 
+// ---------- ruler & protractor ----------
+const measureEl = $('#measure');
+const CELL = 20;
+function snapDir(o, w, stepDeg) {
+  const dx = w.x - o.x, dy = w.y - o.y, a = Math.atan2(dy, dx), st = stepDeg * Math.PI / 180;
+  const s = Math.round(a / st) * st, L = Math.max(0, dx * Math.cos(s) + dy * Math.sin(s));
+  return { x: o.x + Math.cos(s) * L, y: o.y + Math.sin(s) * L };
+}
+function fmtCells(v) { return String(Math.round(v * 100) / 100).replace('.', ','); }
+function fmtNum(v, d) { return String(Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).replace('.', ','); }
+function measureClick(w, shift) {
+  const M = S.measure;
+  if (S.tool === 'ruler') {
+    if (!M || M.tool !== 'ruler' || M.done) S.measure = { tool: 'ruler', a: w, cur: w, done: false };
+    else { M.b = shift ? snapDir(M.a, w, 45) : w; M.cur = M.b; M.done = true; }
+  } else if (S.tool === 'proto') {
+    if (!M || M.tool !== 'proto' || M.done) S.measure = { tool: 'proto', o: w, cur: w, done: false };
+    else if (!M.a) { M.a = shift ? snapDir(M.o, w, 15) : w; M.cur = w; }
+    else { M.b = shift ? snapDir(M.o, w, 15) : w; M.cur = M.b; M.done = true; }
+  }
+  renderMeasure();
+}
+function measureMove(w, shift) {
+  const M = S.measure;
+  if (!M || M.done || M.tool !== S.tool) return;
+  if (M.tool === 'ruler') M.cur = shift ? snapDir(M.a, w, 45) : w;
+  else M.cur = shift ? snapDir(M.o, w, 15) : w;
+  renderMeasure();
+}
+function clearMeasure() { if (S.measure) { S.measure = null; renderMeasure(); } }
+function renderMeasure() {
+  const M = S.measure;
+  if (!M) { measureEl.innerHTML = ''; return; }
+  const z = S.cam.z, sp = p => ({ x: p.x * z + S.cam.x, y: p.y * z + S.cam.y });
+  const f = v => r1(v);
+  let svg = '', labels = '';
+  const lab = (x, y, text, cls) => { labels += '<div class="m-lab' + (cls ? ' ' + cls : '') + '" style="left:' + f(x) + 'px;top:' + f(y) + 'px">' + text + '</div>'; };
+  const dot = p => { svg += '<circle class="m-dot" cx="' + f(p.x) + '" cy="' + f(p.y) + '" r="4"/>'; };
+  if (M.tool === 'ruler') {
+    const a = sp(M.a), b = sp(M.b || M.cur);
+    const dxw = (M.b || M.cur).x - M.a.x, dyw = (M.b || M.cur).y - M.a.y;
+    const dx = Math.abs(dxw) / CELL, dy = Math.abs(dyw) / CELL, d = Math.hypot(dxw, dyw) / CELL;
+    if (Math.abs(b.x - a.x) > 2 && Math.abs(b.y - a.y) > 2) {
+      svg += '<path class="m-leg" d="M' + f(a.x) + ' ' + f(a.y) + 'H' + f(b.x) + 'V' + f(b.y) + '"/>';
+      const s = 10 * Math.sign(a.x - b.x), t = 10 * Math.sign(a.y - b.y);
+      svg += '<path class="m-right" d="M' + f(b.x + s) + ' ' + f(a.y) + 'V' + f(a.y - t) + 'H' + f(b.x) + '"/>';
+      lab((a.x + b.x) / 2, a.y + (b.y > a.y ? -16 : 16), 'Δx = ' + fmtCells(dx));
+      lab(b.x + (b.x > a.x ? 30 : -30), (a.y + b.y) / 2, 'Δy = ' + fmtCells(dy));
+    }
+    svg += '<path class="m-main" d="M' + f(a.x) + ' ' + f(a.y) + 'L' + f(b.x) + ' ' + f(b.y) + '"/>';
+    dot(a); dot(b);
+    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1, nx = -(b.y - a.y) / len, ny = (b.x - a.x) / len;
+    const side = (nx * ((a.x + b.x) / 2 - b.x) + ny * (a.y - b.y)) > 0 ? -1 : 1;
+    let deg = Math.atan2(-dyw, dxw) * 180 / Math.PI; if (deg < 0) deg += 360;
+    lab((a.x + b.x) / 2 + nx * 22 * side, (a.y + b.y) / 2 + ny * 22 * side, '<b>' + fmtCells(d) + ' кл.</b> · ' + fmtNum(deg, 1) + '°', 'main');
+  } else {
+    const o = sp(M.o);
+    dot(o);
+    if (!M.a) {
+      const c = sp(M.cur);
+      svg += '<path class="m-main" d="M' + f(o.x) + ' ' + f(o.y) + 'L' + f(c.x) + ' ' + f(c.y) + '"/>';
+      let deg = Math.atan2(-(M.cur.y - M.o.y), M.cur.x - M.o.x) * 180 / Math.PI; if (deg < 0) deg += 360;
+      svg += '<path class="m-leg" d="M' + f(o.x) + ' ' + f(o.y) + 'h60"/>';
+      lab(c.x + 14, c.y - 16, 'луч 1 · ' + fmtNum(deg, 1) + '°', 'main');
+    } else {
+      const A = sp(M.a), B = sp(M.b || M.cur);
+      svg += '<path class="m-ray" d="M' + f(o.x) + ' ' + f(o.y) + 'L' + f(A.x) + ' ' + f(A.y) + '"/>';
+      svg += '<path class="m-main" d="M' + f(o.x) + ' ' + f(o.y) + 'L' + f(B.x) + ' ' + f(B.y) + '"/>';
+      dot(A); dot(B);
+      const ta = Math.atan2(A.y - o.y, A.x - o.x), tb = Math.atan2(B.y - o.y, B.x - o.x);
+      let dlt = tb - ta; while (dlt > Math.PI) dlt -= 2 * Math.PI; while (dlt <= -Math.PI) dlt += 2 * Math.PI;
+      const rad = Math.abs(dlt), deg = rad * 180 / Math.PI;
+      const R = clamp(Math.min(Math.hypot(A.x - o.x, A.y - o.y), Math.hypot(B.x - o.x, B.y - o.y)) * 0.45, 22, 70);
+      const p1 = { x: o.x + R * Math.cos(ta), y: o.y + R * Math.sin(ta) }, p2 = { x: o.x + R * Math.cos(tb), y: o.y + R * Math.sin(tb) };
+      if (deg > 0.05) svg += '<path class="m-arc" d="M' + f(o.x) + ' ' + f(o.y) + 'L' + f(p1.x) + ' ' + f(p1.y) + 'A' + f(R) + ' ' + f(R) + ' 0 0 ' + (dlt > 0 ? 1 : 0) + ' ' + f(p2.x) + ' ' + f(p2.y) + 'Z"/>';
+      const tm = ta + dlt / 2, LR = R + 34;
+      lab(o.x + LR * Math.cos(tm), o.y + LR * Math.sin(tm), '<b>' + fmtNum(deg, 1) + '°</b> · ' + fmtNum(rad, 3) + ' рад', 'main');
+    }
+  }
+  measureEl.innerHTML = '<svg class="m-svg">' + svg + '</svg>' + labels;
+}
+
+// ---------- transform box (rotate + scale around the selection centre) ----------
+const tbox = document.createElement('div');
+tbox.className = 'tbox'; tbox.hidden = true;
+tbox.innerHTML = '<div class="tb-stem"></div><div class="tb-rot" title="Повернуть вокруг центра (Shift — шаг 15°)"></div><div class="tb-scale" title="Масштаб от центра"></div><div class="tb-deg" hidden></div>';
+world.appendChild(tbox);
+function transformable() { return [...S.sel].map(id => S.items.get(id)).filter(Boolean); }
+function updateTbox() {
+  const sel = transformable();
+  if (drag && drag.kind === 'rotate') return;
+  const solid = sel.filter(i => i.type !== 'arrow');
+  const canRot = sel.some(i => ROT_TYPES.has(i.type));
+  const multi = solid.length > 1 || (solid.length === 1 && isBaked(solid[0]));
+  if (!solid.length || S.editing || S.tool !== 'select' || (!canRot && !multi)) { tbox.hidden = true; return; }
+  const b = selBox(); if (!b) { tbox.hidden = true; return; }
+  tbox.hidden = false;
+  tbox.style.left = b.x + 'px'; tbox.style.top = b.y + 'px'; tbox.style.width = b.w + 'px'; tbox.style.height = b.h + 'px';
+  tbox.classList.toggle('multi', solid.length > 1);
+  tbox.querySelector('.tb-rot').hidden = !canRot; tbox.querySelector('.tb-stem').hidden = !canRot;
+  tbox.querySelector('.tb-scale').hidden = !multi;
+}
+function startTransform(e, mode) {
+  const ids = [...S.sel].filter(id => S.items.has(id));
+  const b = selBox(); if (!b || !ids.length) return;
+  const c = { x: b.x + b.w / 2, y: b.y + b.h / 2 }, p0 = toWorld(e.clientX, e.clientY);
+  const start = new Map();
+  for (const id of ids) { const it = S.items.get(id); start.set(id, { o: clone(it), bb: baseBox(it) }); }
+  const single = ids.length === 1 ? S.items.get(ids[0]) : null;
+  drag = { kind: mode, c, a0: Math.atan2(p0.y - c.y, p0.x - c.x), d0: Math.hypot(p0.x - c.x, p0.y - c.y) || 1, start, rot0: single && hasRotField(single) ? (single.rot || 0) : 0, single: !!single };
+  if (mode === 'rotate') { const dg = tbox.querySelector('.tb-deg'); dg.hidden = false; dg.textContent = '0°'; }
+}
+function applyRotate(delta) {
+  const c = drag.c;
+  for (const [id, s] of drag.start) {
+    const it = S.items.get(id); if (!it) continue;
+    const o = s.o;
+    if (it.type === 'arrow') { for (const k of ['a', 'b']) if (!o[k].id) { const p = rotP(o[k], c, delta); it[k] = { x: r1(p.x), y: r1(p.y) }; } renderItem(it); continue; }
+    if (isBaked(it)) { setAbsPts(it, o.pts.map(p => { const q = rotP({ x: p[0] + o.x, y: p[1] + o.y }, c, delta); return [q.x, q.y]; })); }
+    else {
+      const bc = { x: s.bb.x + s.bb.w / 2, y: s.bb.y + s.bb.h / 2 }, nc = rotP(bc, c, delta);
+      it.x = r1(nc.x - s.bb.w / 2); it.y = r1(nc.y - s.bb.h / 2);
+      if (hasRotField(it)) it.rot = normDeg((o.rot || 0) + delta);
+    }
+    renderItem(it);
+  }
+  requestArrows();
+}
+function applyScale(k) {
+  const c = drag.c;
+  for (const [id, s] of drag.start) {
+    const it = S.items.get(id); if (!it) continue;
+    const o = s.o;
+    if (it.type === 'arrow') { for (const key of ['a', 'b']) if (!o[key].id) it[key] = { x: r1(c.x + (o[key].x - c.x) * k), y: r1(c.y + (o[key].y - c.y) * k) }; renderItem(it); continue; }
+    if (isBaked(it)) { setAbsPts(it, o.pts.map(p => [c.x + (p[0] + o.x - c.x) * k, c.y + (p[1] + o.y - c.y) * k])); renderItem(it); continue; }
+    let kk = k;
+    switch (it.type) {
+      case 'note': it.w = Math.round(Math.max(60, o.w * k)); it.h = Math.round(Math.max(40, o.h * k)); kk = it.w / o.w; break;
+      case 'text': it.fs = clamp(Math.round(o.fs * k * 2) / 2, 1, 100); kk = it.fs / o.fs; it.w = Math.round(Math.max(20, o.w * kk)); break;
+      case 'formula': it.fs = clamp(Math.round(o.fs * k), 1, 160); kk = it.fs / o.fs; break;
+      case 'graph': it.w = Math.round(Math.max(280, o.w * k)); it.h = Math.round(Math.max(220, o.h * k)); kk = it.w / o.w; break;
+      case 'calc': it.w = Math.round(Math.max(260, o.w * k)); kk = it.w / o.w; break;
+      default: it.w = Math.round(Math.max(10, o.w * k)); it.h = Math.round(Math.max(10, o.h * k)); kk = it.w / o.w;
+    }
+    const bc = { x: s.bb.x + s.bb.w / 2, y: s.bb.y + s.bb.h / 2 }, nc = { x: c.x + (bc.x - c.x) * k, y: c.y + (bc.y - c.y) * k };
+    it.x = r1(nc.x - s.bb.w * kk / 2); it.y = r1(nc.y - s.bb.h * kk / 2);
+    const el = els.get(it.id); if (el) el._k = null;
+    renderItem(it);
+  }
+  requestArrows();
+}
+
+// ---------- links: magnets, pins, arrow ends ----------
+function findLinkTarget(cx, cy, w, selfId, excludeId) {
+  const tol = 18 / S.cam.z;
+  let best = null, bd = tol;
+  for (const it of S.items.values()) {
+    if (it.type !== 'note' || it.id === excludeId) continue;
+    const p = pinPoint(it), d = Math.hypot(p.x - w.x, p.y - w.y);
+    if (d < bd) { bd = d; best = { id: it.id, pin: true }; }
+  }
+  if (best) return best;
+  for (const el of document.elementsFromPoint(cx, cy)) {
+    if (el.closest && (el.closest('.tbox') || el.closest('.ah'))) continue;
+    const ie = el.closest ? el.closest('#world .item') : null;
+    if (!ie) continue;
+    const t = S.items.get(ie.dataset.id);
+    if (!t || t.id === selfId || t.id === excludeId || t.type === 'arrow' || t.type === 'stroke' || t.type === 'frame') continue;
+    return { id: t.id };
+  }
+  return null;
+}
+let linkHoverId = null;
+function setLinkHover(target) {
+  const id = target ? target.id + (target.pin ? '|pin' : '') : null;
+  if (id === linkHoverId) return;
+  if (linkHoverId) { const el = els.get(linkHoverId.split('|')[0]); if (el) el.classList.remove('link-target', 'link-pin'); }
+  linkHoverId = id;
+  if (target) { const el = els.get(target.id); if (el) el.classList.add(target.pin ? 'link-pin' : 'link-target'); }
+}
+function inBox(p, b) { return p.x >= b.x && p.y >= b.y && p.x <= b.x + b.w && p.y <= b.y + b.h; }
+
 // ---------- pointer interaction ----------
 const pointers = new Map();
 let drag = null, spaceDown = false, lastTap = null, hoverPlot = null;
@@ -2518,8 +3465,9 @@ function onDown(e) {
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   closePopups();
   if (pointers.size === 2) {
-    if (drag && (drag.kind === 'move' || drag.kind === 'resize')) commit();
-    if (drag && drag.kind === 'pen') drag.path.remove();
+    if (drag && ['move', 'resize', 'vertex', 'aend', 'rotate', 'gscale'].includes(drag.kind)) commit();
+    if (drag && (drag.kind === 'pen' || drag.kind === 'arrow')) drag.path.remove();
+    viewport.classList.remove('linking'); setLinkHover(null);
     ghost.hidden = true; marqueeEl.hidden = true;
     const [p1, p2] = [...pointers.values()];
     drag = { kind: 'pinch', d0: Math.hypot(p1.x - p2.x, p1.y - p2.y) || 1, m0: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }, cam0: Object.assign({}, S.cam) };
@@ -2541,12 +3489,19 @@ function onDown(e) {
   finishEdit();
   e.preventDefault();
   const w = toWorld(e.clientX, e.clientY);
-  if (e.button === 1 || S.tool === 'hand' || spaceDown || (e.pointerType === 'touch' && S.tool === 'select' && !id)) return startPan(e);
+  const tHandle = t.closest('.tb-rot, .tb-scale, .vh, .eh, .ah, .pin, .handle');
+  if (e.button === 1 || S.tool === 'hand' || spaceDown || (e.pointerType === 'touch' && S.tool === 'select' && !id && !tHandle)) return startPan(e);
   if (e.button !== 0) return;
   switch (S.tool) {
     case 'select': {
-      if (t.closest('.handle') && id) return startResize(e, id);
+      if (t.closest('.tb-rot')) return startTransform(e, 'rotate');
+      if (t.closest('.tb-scale')) return startTransform(e, 'gscale');
       if (id) {
+        const ah = t.closest('.ah'); if (ah) return startArrowEnd(e, id, ah.dataset.end);
+        const vh = t.closest('.vh'); if (vh) return startVertex(e, id, +vh.dataset.i);
+        const eh = t.closest('.eh'); if (eh) return insertVertex(e, id, +eh.dataset.i);
+        if (t.closest('.pin')) return startArrowDraw(e, { id, pin: true });
+        if (t.closest('.handle')) return startResize(e, id);
         if (e.shiftKey) { const s = new Set(S.sel); if (s.has(id)) s.delete(id); else s.add(id); setSel([...s]); if (!S.sel.has(id)) return; }
         else if (!S.sel.has(id)) setSel([id]);
         return startMove(e, id);
@@ -2557,40 +3512,68 @@ function onDown(e) {
     }
     case 'pen': {
       const path = document.createElementNS(SVGNS, 'path');
-      path.setAttribute('stroke', 'var(--c-' + S.pen.color + ')'); path.setAttribute('stroke-width', S.pen.width);
+      path.setAttribute('stroke', cssColor(S.pen.color)); path.setAttribute('stroke-width', S.pen.width);
       tempSvg.appendChild(path);
-      drag = { kind: 'pen', pts: [[w.x, w.y]], path };
+      drag = { kind: 'pen', pts: [[w.x, w.y]], path, ema: { x: w.x, y: w.y }, base: null };
       path.setAttribute('d', smoothPath(drag.pts, 0, 0));
       return;
     }
     case 'eraser': drag = { kind: 'erase', hit: new Set() }; eraseAt(w, drag.hit); return;
-    case 'arrow': {
-      const fromIt = id && S.items.get(id);
-      const from = fromIt && fromIt.type !== 'arrow' && fromIt.type !== 'stroke' ? { id } : { x: w.x, y: w.y };
-      const path = document.createElementNS(SVGNS, 'path');
-      path.setAttribute('stroke', 'var(--accent)'); path.setAttribute('stroke-width', 1.8 / S.cam.z); path.setAttribute('stroke-dasharray', (6 / S.cam.z) + ' ' + (5 / S.cam.z));
-      tempSvg.appendChild(path);
-      drag = { kind: 'arrow', from, path, sx: e.clientX, sy: e.clientY };
-      return;
-    }
+    case 'arrow': return startArrowDraw(e, findLinkTarget(e.clientX, e.clientY, w, null, null) || { x: r1(w.x), y: r1(w.y) });
+    case 'ruler': case 'proto': measureClick(w, e.shiftKey); return;
     default: drag = { kind: 'create', tool: S.tool, sx: e.clientX, sy: e.clientY, w0: w };
   }
 }
 function startPan(e) { drag = { kind: 'pan', sx: e.clientX, sy: e.clientY, cx: S.cam.x, cy: S.cam.y }; viewport.classList.add('panning'); }
 function startMove(e, id) {
-  const ids = new Set(S.sel);
-  for (const sid of S.sel) { const it = S.items.get(sid); if (it && it.type === 'frame') frameChildren(it).forEach(c => ids.add(c)); }
+  const ids = new Set(S.sel), frames = [];
+  for (const sid of S.sel) { const it = S.items.get(sid); if (it && it.type === 'frame') { frames.push(it); frameChildren(it).forEach(c => ids.add(c)); } }
   const start = new Map();
   for (const mid of ids) {
     const it = S.items.get(mid); if (!it) continue;
-    start.set(mid, it.type === 'arrow' ? { a: Object.assign({}, it.a), b: Object.assign({}, it.b) } : { x: it.x, y: it.y });
+    start.set(mid, it.type === 'arrow' ? { a: Object.assign({}, it.a), b: Object.assign({}, it.b), mA: !it.a.id, mB: !it.b.id } : { x: it.x, y: it.y });
+  }
+  if (frames.length) for (const a of S.items.values()) {
+    if (a.type !== 'arrow' || start.has(a.id)) continue;
+    const mA = !a.a.id && frames.some(f => inBox(a.a, f)), mB = !a.b.id && frames.some(f => inBox(a.b, f));
+    if (mA || mB) start.set(a.id, { a: Object.assign({}, a.a), b: Object.assign({}, a.b), mA, mB });
   }
   const primary = S.items.get(id);
   drag = { kind: 'move', sx: e.clientX, sy: e.clientY, start, moved: false, id, px: primary && primary.type !== 'arrow' ? primary.x : 0, py: primary && primary.type !== 'arrow' ? primary.y : 0, pointerType: e.pointerType };
 }
 function startResize(e, id) {
-  const it = S.items.get(id), b = boxOf(it);
-  drag = { kind: 'resize', id, sx: e.clientX, sy: e.clientY, w0: b.w, h0: b.h, fs0: it.fs || 20 };
+  const it = S.items.get(id), bb = baseBox(it), c = { x: bb.x + bb.w / 2, y: bb.y + bb.h / 2 };
+  const p0 = toWorld(e.clientX, e.clientY), l0 = rotV(p0.x - c.x, p0.y - c.y, -(it.rot || 0));
+  drag = { kind: 'resize', id, c, bb, l0: { x: Math.max(4, Math.abs(l0.x)), y: Math.max(4, Math.abs(l0.y)) }, o: clone(it) };
+}
+function startVertex(e, id, i) {
+  const it = S.items.get(id);
+  if (!it || it.kind !== 'poly') return;
+  drag = { kind: 'vertex', id, i, o: clone(it) };
+  const el = els.get(id); if (el) el._k = null;
+  renderItem(it);
+}
+function insertVertex(e, id, i) {
+  const it = S.items.get(id);
+  if (!it || it.kind !== 'poly' || it.pts.length >= 64) return;
+  const el = els.get(id);
+  if (it.reg) { regularizePoly(it, it.pts.length + 1); if (el) el._k = null; renderItem(it); commit(); buildCtx(); return; }
+  const n = it.pts.length, p = it.pts[i], q = it.pts[(i + 1) % n];
+  it.pts.splice(i + 1, 0, [r1((p[0] + q[0]) / 2), r1((p[1] + q[1]) / 2)]);
+  buildCtx();
+  startVertex(e, id, i + 1);
+}
+function startArrowDraw(e, from) {
+  const path = document.createElementNS(SVGNS, 'path');
+  path.setAttribute('stroke', 'var(--accent)'); path.setAttribute('stroke-width', 1.8 / S.cam.z); path.setAttribute('stroke-dasharray', (6 / S.cam.z) + ' ' + (5 / S.cam.z));
+  tempSvg.appendChild(path);
+  drag = { kind: 'arrow', from, path, sx: e.clientX, sy: e.clientY };
+  viewport.classList.add('linking');
+}
+function startArrowEnd(e, id, end) {
+  const it = S.items.get(id); if (!it) return;
+  drag = { kind: 'aend', id, end, o: clone(it) };
+  viewport.classList.add('linking');
 }
 function onMove(e) {
   if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -2598,7 +3581,11 @@ function onMove(e) {
     const r = vpRect();
     if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) { const w = toWorld(e.clientX, e.clientY); pres({ cur: [r1(w.x), r1(w.y)] }); }
   }
-  if (!drag) { hoverGraph(e); return; }
+  if (!drag) {
+    hoverGraph(e);
+    if (S.measure && (S.tool === 'ruler' || S.tool === 'proto')) measureMove(toWorld(e.clientX, e.clientY), e.shiftKey);
+    return;
+  }
   const z = S.cam.z;
   switch (drag.kind) {
     case 'pinch': {
@@ -2627,7 +3614,7 @@ function onMove(e) {
       if (S.snap) { dx = Math.round((drag.px + dx) / 10) * 10 - drag.px; dy = Math.round((drag.py + dy) / 10) * 10 - drag.py; }
       for (const [id, s] of drag.start) {
         const it = S.items.get(id); if (!it) continue;
-        if (it.type === 'arrow') { if (!s.a.id) it.a = { x: s.a.x + dx, y: s.a.y + dy }; if (!s.b.id) it.b = { x: s.b.x + dx, y: s.b.y + dy }; }
+        if (it.type === 'arrow') { if (s.mA) it.a = { x: r1(s.a.x + dx), y: r1(s.a.y + dy) }; if (s.mB) it.b = { x: r1(s.b.x + dx), y: r1(s.b.y + dy) }; }
         else { it.x = Math.round(s.x + dx); it.y = Math.round(s.y + dy); }
         renderItem(it);
       }
@@ -2638,19 +3625,67 @@ function onMove(e) {
     }
     case 'resize': {
       const it = S.items.get(drag.id); if (!it) return;
-      let nw = Math.max(40, drag.w0 + (e.clientX - drag.sx) / z), nh = Math.max(30, drag.h0 + (e.clientY - drag.sy) / z);
-      if (e.shiftKey && it.type !== 'calc') { const k = Math.max(nw / drag.w0, nh / drag.h0); nw = drag.w0 * k; nh = drag.h0 * k; }
-      if (S.snap) { nw = Math.round((it.x + nw) / 10) * 10 - it.x; nh = Math.round((it.y + nh) / 10) * 10 - it.y; }
+      const w = toWorld(e.clientX, e.clientY), o = drag.o, bb = drag.bb, c = drag.c;
+      const l = rotV(w.x - c.x, w.y - c.y, -(it.rot || 0));
+      let kx = Math.max(0.05, l.x / drag.l0.x), ky = Math.max(0.05, l.y / drag.l0.y);
+      if (e.shiftKey) kx = ky = Math.max(kx, ky);
+      const kd = Math.max(0.05, Math.hypot(Math.max(0, l.x), Math.max(0, l.y)) / Math.hypot(drag.l0.x, drag.l0.y));
+      let nw = bb.w, nh = bb.h, keepY = false;
       switch (it.type) {
-        case 'formula': it.fs = Math.round(clamp(drag.fs0 * nw / drag.w0, 10, 160)); break;
-        case 'text': it.w = Math.round(Math.max(60, nw)); break;
-        case 'calc': it.w = Math.round(Math.max(260, nw)); break;
-        case 'graph': it.w = Math.round(Math.max(280, nw)); it.h = Math.round(Math.max(220, nh)); break;
-        case 'note': it.w = Math.round(Math.max(120, nw)); it.h = Math.round(Math.max(60, nh)); break;
-        default: it.w = Math.round(nw); it.h = Math.round(nh);
+        case 'formula': it.fs = clamp(Math.round(o.fs * kd), 1, 160); nw = bb.w * it.fs / o.fs; nh = bb.h * it.fs / o.fs; break;
+        case 'text': { it.fs = clamp(Math.round(o.fs * kd), 1, 100); const kk = it.fs / o.fs; it.w = Math.round(Math.max(20, o.w * kk)); nw = it.w; nh = bb.h * kk; break; }
+        case 'calc': it.w = Math.round(Math.max(260, o.w * kx)); nw = it.w; keepY = true; break;
+        case 'graph': it.w = Math.round(Math.max(280, o.w * kx)); it.h = Math.round(Math.max(220, o.h * ky)); nw = it.w; nh = it.h; break;
+        case 'note': it.w = Math.round(Math.max(120, o.w * kx)); it.h = Math.round(Math.max(60, o.h * ky)); nw = it.w; nh = it.h; break;
+        default: it.w = Math.round(Math.max(20, o.w * kx)); it.h = Math.round(Math.max(20, o.h * ky)); nw = it.w; nh = it.h;
       }
-      if (it.type !== 'formula') pres({ drag: [[it.id, it.x, it.y, it.w, it.h]] });
+      it.x = r1(c.x - nw / 2); if (!keepY) it.y = r1(c.y - nh / 2);
+      if (it.type !== 'formula' && it.type !== 'text') pres({ drag: [[it.id, it.x, it.y, it.w, it.h]] });
+      const el = els.get(it.id); if (el) el._k = null;
       renderItem(it); requestArrows(); return;
+    }
+    case 'vertex': {
+      const it = S.items.get(drag.id); if (!it) return;
+      let w = toWorld(e.clientX, e.clientY);
+      if (S.snap) w = { x: Math.round(w.x / 10) * 10, y: Math.round(w.y / 10) * 10 };
+      const o = drag.o, abs = absPts(o), n = abs.length;
+      if (o.reg) {
+        const c = centroid(abs), sgn = Math.sign(polyArea(abs)) || 1;
+        const R = Math.max(5, Math.hypot(w.x - c.x, w.y - c.y)), a = Math.atan2(w.y - c.y, w.x - c.x);
+        setAbsPts(it, regularAbs(n, c, R, a - sgn * drag.i * 2 * Math.PI / n, sgn));
+      } else {
+        if (e.shiftKey) { const pv = abs[(drag.i - 1 + n) % n]; w = snapDir({ x: pv[0], y: pv[1] }, w, 15); }
+        abs[drag.i] = [w.x, w.y];
+        setAbsPts(it, abs);
+      }
+      const el = els.get(it.id); if (el) el._k = null;
+      renderItem(it); requestArrows(); requestCtx(); return;
+    }
+    case 'aend': {
+      const it = S.items.get(drag.id); if (!it) return;
+      let w = toWorld(e.clientX, e.clientY);
+      if (S.snap) w = { x: Math.round(w.x / 10) * 10, y: Math.round(w.y / 10) * 10 };
+      const mag = drag.end === 'a' ? it.ma !== false : it.mb !== false;
+      const other = it[drag.end === 'a' ? 'b' : 'a'];
+      const tg = mag ? findLinkTarget(e.clientX, e.clientY, w, it.id, other.id || null) : null;
+      setLinkHover(tg);
+      it[drag.end] = tg || { x: r1(w.x), y: r1(w.y) };
+      const el = els.get(it.id); if (el) el._k = null;
+      renderItem(it); requestCtx(); return;
+    }
+    case 'rotate': {
+      const w = toWorld(e.clientX, e.clientY);
+      let delta = (Math.atan2(w.y - drag.c.y, w.x - drag.c.x) - drag.a0) * 180 / Math.PI;
+      if (e.shiftKey) delta = Math.round((drag.rot0 + delta) / 15) * 15 - drag.rot0;
+      applyRotate(delta);
+      const dg = tbox.querySelector('.tb-deg');
+      dg.textContent = (drag.single ? fmtNum(normDeg(drag.rot0 + delta), 1) : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), 1)) + '°';
+      return;
+    }
+    case 'gscale': {
+      const w = toWorld(e.clientX, e.clientY);
+      applyScale(clamp(Math.hypot(w.x - drag.c.x, w.y - drag.c.y) / drag.d0, 0.05, 40));
+      requestCtx(); return;
     }
     case 'marquee': {
       const r = vpRect();
@@ -2670,26 +3705,47 @@ function onMove(e) {
       return;
     }
     case 'pen': {
-      const w = toWorld(e.clientX, e.clientY), last = drag.pts[drag.pts.length - 1];
-      if (Math.hypot(w.x - last[0], w.y - last[1]) < 1.5 / z) return;
-      drag.pts.push([w.x, w.y]);
+      const w = toWorld(e.clientX, e.clientY);
+      if (e.shiftKey) {
+        if (drag.base == null) drag.base = drag.pts.length;
+        const a = drag.pts[drag.base - 1], p = snapDir({ x: a[0], y: a[1] }, w, 45);
+        drag.pts.length = drag.base; drag.pts.push([p.x, p.y]); drag.ema = { x: p.x, y: p.y };
+      } else {
+        if (drag.base != null) { drag.base = null; }
+        const s = (S.pen.smooth / 100) * 0.9;
+        drag.ema = { x: drag.ema.x + (w.x - drag.ema.x) * (1 - s), y: drag.ema.y + (w.y - drag.ema.y) * (1 - s) };
+        const last = drag.pts[drag.pts.length - 1];
+        if (Math.hypot(drag.ema.x - last[0], drag.ema.y - last[1]) < 1.2 / z) return;
+        drag.pts.push([drag.ema.x, drag.ema.y]);
+      }
       drag.path.setAttribute('d', smoothPath(drag.pts, 0, 0));
       return;
     }
     case 'erase': eraseAt(toWorld(e.clientX, e.clientY), drag.hit); return;
     case 'arrow': {
       const w = toWorld(e.clientX, e.clientY);
-      const p1 = drag.from.id ? anchorPt(drag.from, w) : drag.from;
-      drag.path.setAttribute('d', 'M' + p1.x + ' ' + p1.y + 'L' + w.x + ' ' + w.y);
+      const tg = findLinkTarget(e.clientX, e.clientY, w, null, drag.from.id || null);
+      setLinkHover(tg);
+      const fromC = drag.from.id ? centerOf(drag.from) : drag.from;
+      const end = tg ? anchorPt(tg, fromC) : w;
+      const p1 = drag.from.id ? anchorPt(drag.from, end) : drag.from;
+      drag.path.setAttribute('d', 'M' + p1.x + ' ' + p1.y + 'L' + end.x + ' ' + end.y);
       return;
     }
     case 'create': {
       if (drag.tool !== 'shape' && drag.tool !== 'frame') return;
       if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 6) return;
-      const w = toWorld(e.clientX, e.clientY);
-      drag.rect = { x: Math.min(w.x, drag.w0.x), y: Math.min(w.y, drag.w0.y), w: Math.abs(w.x - drag.w0.x), h: Math.abs(w.y - drag.w0.y) };
+      const w = toWorld(e.clientX, e.clientY), kind = S.shapeKind;
+      let dx = w.x - drag.w0.x, dy = w.y - drag.w0.y;
+      const regular = drag.tool === 'shape' && (e.shiftKey || S.shapeReg);
+      if (regular) {
+        if (kind === 'triangle') { const L = Math.max(Math.abs(dx), Math.abs(dy) / SQ3); dx = (Math.sign(dx) || 1) * L; dy = (Math.sign(dy) || 1) * L * SQ3; }
+        else { const m = Math.max(Math.abs(dx), Math.abs(dy)); dx = (Math.sign(dx) || 1) * m; dy = (Math.sign(dy) || 1) * m; }
+      }
+      drag.rect = { x: Math.min(drag.w0.x, drag.w0.x + dx), y: Math.min(drag.w0.y, drag.w0.y + dy), w: Math.abs(dx), h: Math.abs(dy) };
       ghost.hidden = false;
-      Object.assign(ghost.style, { left: drag.rect.x + 'px', top: drag.rect.y + 'px', width: drag.rect.w + 'px', height: drag.rect.h + 'px', borderRadius: drag.tool === 'shape' && S.shapeKind === 'ellipse' ? '50%' : '4px' });
+      const tri = drag.tool === 'shape' && kind === 'triangle';
+      Object.assign(ghost.style, { left: drag.rect.x + 'px', top: drag.rect.y + 'px', width: drag.rect.w + 'px', height: drag.rect.h + 'px', borderRadius: drag.tool === 'shape' && kind === 'ellipse' ? '50%' : '4px', clipPath: tri ? 'polygon(50% 0, 100% 100%, 0 100%)' : 'none' });
       return;
     }
   }
@@ -2716,10 +3772,13 @@ function onUp(e) {
       return;
     }
     case 'resize': pres({ drag: null }); commit(); buildCtx(); return;
+    case 'vertex': { const it = S.items.get(d.id); if (it) { const el = els.get(it.id); if (el) el._k = null; renderItem(it); } commit(); buildCtx(); return; }
+    case 'aend': { viewport.classList.remove('linking'); setLinkHover(null); const it = S.items.get(d.id); if (it) { const el = els.get(it.id); if (el) el._k = null; renderItem(it); } commit(); buildCtx(); return; }
+    case 'rotate': case 'gscale': tbox.querySelector('.tb-deg').hidden = true; commit(); buildCtx(); return;
     case 'marquee': marqueeEl.hidden = true; return;
     case 'pen': {
       d.path.remove();
-      const pts = simplifyPts(d.pts, 0.6 / S.cam.z);
+      const pts = simplifyPts(d.pts, (0.5 + S.pen.smooth / 100 * 1.4) / S.cam.z);
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       for (const [x, y] of pts) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
       const it = newItem('stroke', x0, y0, { color: S.pen.color, width: S.pen.width });
@@ -2730,14 +3789,11 @@ function onUp(e) {
     }
     case 'erase': if (d.hit.size) { for (const id of d.hit) removeLocal(id); commit(); } return;
     case 'arrow': {
-      d.path.remove();
+      d.path.remove(); viewport.classList.remove('linking'); setLinkHover(null);
       const w = toWorld(e.clientX, e.clientY);
-      const under = document.elementFromPoint(e.clientX, e.clientY);
-      const tEl = under && under.closest ? under.closest('.item') : null;
-      const tIt = tEl && S.items.get(tEl.dataset.id);
-      const to = tIt && tIt.type !== 'arrow' && tIt.type !== 'stroke' && tIt.id !== d.from.id ? { id: tIt.id } : { x: w.x, y: w.y };
+      const to = findLinkTarget(e.clientX, e.clientY, w, null, d.from.id || null) || { x: r1(w.x), y: r1(w.y) };
       if (Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 8 && !to.id) return;
-      const ar = addItem(newItem('arrow', 0, 0, { a: d.from, b: to, color: 'ink' }));
+      const ar = addItem(newItem('arrow', 0, 0, { a: d.from, b: to, color: 'ink', head: S.arrowDef.head, style: S.arrowDef.style }));
       requestArrows(); commit(); setTool('select'); setSel([ar.id]); showOverlay();
       return;
     }
@@ -2794,6 +3850,10 @@ viewport.addEventListener('pointerleave', () => { pres({ cur: null }); if (hover
 
 viewport.addEventListener('dblclick', e => {
   if (e.target.closest('[data-ui]')) return;
+  const vh = e.target.closest('.vh');
+  if (vh) { const it = S.items.get(vh.closest('.item').dataset.id); if (removeVertex(it, +vh.dataset.i)) { const el = els.get(it.id); if (el) el._k = null; renderItem(it); commit(); buildCtx(); } return; }
+  if (e.target.closest('.ah, .eh, .pin, .tbox, .handle')) return;
+  if (S.tool === 'ruler' || S.tool === 'proto') return;
   const itemEl = e.target.closest('.item');
   if (itemEl) { const it = S.items.get(itemEl.dataset.id); if (it && it.type !== 'graph' && it.type !== 'calc') { setSel([it.id]); startEdit(it.id); } return; }
   if (S.tool === 'select') createAt('formula', toWorld(e.clientX, e.clientY));
@@ -2841,6 +3901,12 @@ world.addEventListener('click', e => {
       break;
     }
     case 'dot': it.fns[i].on = !it.fns[i].on; renderItem(it); commit(); break;
+    case 'fcolor': {
+      const f = it.fns[i]; if (!f || pickerSuppressed(b.dataset.pkkey)) break;
+      openPicker(b, { key: b.dataset.pkkey, title: 'Цвет графика', value: f.c, presets: INK_PRESETS, onInput: c => { f.c = c; renderItem(it); commitSoon(); }, onClose: () => commit() });
+      break;
+    }
+    case 'polar': it.polar = !it.polar; if (!it.polar) delete it.polar; renderItem(it); commit(); buildCtx(); break;
     case 'del': it.fns.splice(i, 1); renderItem(it); commit(); break;
     case 'deriv': {
       const f = it.fns[i], r = analyzeGraph(it).rows[i];
@@ -2908,18 +3974,26 @@ world.addEventListener('focusout', e => {
 
 // ---------- chrome events ----------
 toolbar.addEventListener('click', e => { const b = e.target.closest('.tool'); if (b) { finishEdit(); setTool(b.dataset.tool); } });
-ctxEl.addEventListener('pointerdown', e => e.preventDefault());
+ctxEl.addEventListener('pointerdown', e => { if (!e.target.closest('input')) e.preventDefault(); });
 ctxEl.addEventListener('click', e => {
   const b = e.target.closest('[data-cmd]'); if (!b) return;
   const [cmd, arg] = b.dataset.cmd.split(':');
   const sel = [...S.sel].map(id => S.items.get(id)).filter(Boolean), one = sel.length === 1 ? sel[0] : null;
+  const rer = list => { for (const it of list) { const el = els.get(it.id); if (el) { el._k = null; el._dk = null; } renderItem(it); } requestArrows(); };
   switch (cmd) {
-    case 'pen-color': S.pen.color = arg; buildCtx(); break;
-    case 'pen-w': S.pen.width = +arg; buildCtx(); break;
+    case 'pick': if (!pickerSuppressed(b.dataset.cmd)) openColorFor(arg, b); break;
+    case 'pen-w': S.pen.width = +arg; savePrefs(); buildCtx(); break;
     case 'shape-tool': S.shapeKind = arg; buildCtx(); break;
-    case 'color': for (const it of sel) { it.color = arg; const el = els.get(it.id); if (el) el._k = null; renderItem(it); } commit(); buildCtx(); break;
-    case 'kind': if (one) { one.kind = arg; renderItem(one); commit(); buildCtx(); } break;
-    case 'fs': if (one) { one.fs = +arg; renderItem(one); commit(); buildCtx(); requestArrows(); } break;
+    case 'shape-reg': S.shapeReg = !S.shapeReg; buildCtx(); break;
+    case 'adef-head': S.arrowDef.head = arg === '1'; buildCtx(); break;
+    case 'adef-style': S.arrowDef.style = arg; buildCtx(); break;
+    case 'head': for (const it of sel) if (it.type === 'arrow') it.head = arg === '1'; rer(sel); commit(); buildCtx(); break;
+    case 'astyle': for (const it of sel) if (it.type === 'arrow') it.style = arg; rer(sel); commit(); buildCtx(); break;
+    case 'mag': if (one && one.type === 'arrow') { toggleMagnet(one, arg); rer([one]); commit(); buildCtx(); } break;
+    case 'vtx': if (one && one.kind === 'poly') { changeVertexCount(one, +arg); rer([one]); commit(); buildCtx(); } break;
+    case 'reg': if (one && one.kind === 'poly') { if (one.reg) delete one.reg; else { one.reg = true; regularizePoly(one); } rer([one]); commit(); buildCtx(); } break;
+    case 'inter': if (one) { one.inter = one.inter === false; rer([one]); commit(); buildCtx(); } break;
+    case 'polar': if (one) { if (arg === '1') one.polar = true; else delete one.polar; rer([one]); commit(); buildCtx(); } break;
     case 'deriv': if (one) actDerivative(one); break;
     case 'simplify': if (one) actSimplify(one); break;
     case 'plot': if (one) actPlot(one); break;
@@ -2937,6 +4011,32 @@ ctxEl.addEventListener('click', e => {
     case 'del': deleteItems([...S.sel]); break;
   }
 });
+function applyCtxInput(t, final) {
+  const k = t.dataset && t.dataset.in; if (!k) return;
+  const sel = [...S.sel].map(id => S.items.get(id)).filter(Boolean), out = t.parentElement.querySelector('output');
+  if (k === 'smooth') { S.pen.smooth = clamp(+t.value || 0, 0, 100); if (out) out.textContent = S.pen.smooth; savePrefs(); return; }
+  if (k === 'rad') {
+    for (const it of sel) if (it.type === 'shape' && it.kind === 'poly') { it.rad = +t.value; const el = els.get(it.id); if (el) el._k = null; renderItem(it); }
+    if (out) out.textContent = t.value; commitSoon(); return;
+  }
+  if (k === 'fs') {
+    let v = Math.round(+t.value);
+    if (!isFinite(v) || v < 1) { if (!final) return; v = 1; }
+    v = clamp(v, 1, 100);
+    if (final) t.value = v;
+    for (const it of sel) if (it.type === 'text' || it.type === 'formula') {
+      const bb = baseBox(it), cx = bb.x + bb.w / 2, kk = v / it.fs;
+      it.fs = v; if (it.type === 'text') it.w = Math.round(Math.max(20, it.w * kk));
+      it.x = r1(cx - bb.w * kk / 2);
+      const el = els.get(it.id); if (el) el._k = null; renderItem(it);
+    }
+    requestArrows(); requestCtx();
+    if (final) commit(); else commitSoon(700);
+  }
+}
+ctxEl.addEventListener('input', e => applyCtxInput(e.target, false));
+ctxEl.addEventListener('change', e => applyCtxInput(e.target, true));
+ctxEl.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input')) { e.preventDefault(); e.target.blur(); } });
 $('#btnUndo').addEventListener('click', undo);
 $('#btnRedo').addEventListener('click', redo);
 $('#btnZoomIn').addEventListener('click', () => zoomBy(1.25));
@@ -2944,12 +4044,16 @@ $('#btnZoomOut').addEventListener('click', () => zoomBy(0.8));
 $('#btnFit').addEventListener('click', () => { if (S.items.size) fitAll(); });
 zoomPct.addEventListener('click', () => { const r = vpRect(); zoomAt(r.width / 2, r.height / 2, 1); });
 $('#btnGrid').addEventListener('click', () => { S.grid = { lines: 'dots', dots: 'none', none: 'lines' }[S.grid]; applyPrefs(); });
+const bgPop = $('#bgPop');
+$('#btnBg').addEventListener('click', () => { const open = bgPop.hidden; closePopups('bg'); bgPop.hidden = !open; $('#btnBg').setAttribute('aria-expanded', String(open)); });
+bgPop.addEventListener('click', e => { const b = e.target.closest('[data-bg]'); if (!b) return; S.board = b.dataset.bg; savePrefs(); applyBoard(); });
 $('#btnSnap').addEventListener('click', () => { S.snap = !S.snap; applyPrefs(); toast(S.snap ? 'Привязка к сетке включена' : 'Привязка к сетке выключена', 1800); });
 titleIn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') titleIn.blur(); });
 titleIn.addEventListener('change', saveTitle);
 titleIn.addEventListener('blur', () => { clearTimeout(titleT); if ((titleIn.value.trim() || 'Новая доска') !== S.title) saveTitle(); titleIn.value = S.title; });
 function closePopups(except) {
   if (except !== 'people' && !peoplePop.hidden) peoplePop.hidden = true;
+  if (except !== 'bg' && !bgPop.hidden) { bgPop.hidden = true; $('#btnBg').setAttribute('aria-expanded', 'false'); }
   if (except !== 'menu' && !menuEl.hidden) { menuEl.hidden = true; $('#btnMenu').setAttribute('aria-expanded', 'false'); resetClear(); }
 }
 $('#btnMenu').addEventListener('click', () => {
@@ -2981,12 +4085,14 @@ menuEl.addEventListener('click', async e => {
   const b = e.target.closest('[data-cmd]'); if (!b) return;
   const cmd = b.dataset.cmd;
   if (cmd === 'clear') {
-    if (!S.items.size) { closePopups(); return; }
-    if (!clearArmed) { clearArmed = Date.now(); b.textContent = 'Нажмите ещё раз: удалить всё'; b.classList.add('warn'); setTimeout(() => { if (clearArmed && Date.now() - clearArmed >= 3900) resetClear(); }, 4000); return; }
+    closePopups();
+    if (!S.items.size) return;
+    finishEdit(); clearMeasure();
     for (const id of [...S.items.keys()]) removeLocal(id);
-    commit(); setSel([]); showOverlay(); closePopups(); toast('Доска очищена. Ctrl+Z вернёт всё обратно.');
+    commit(); setSel([]); showOverlay();
     return;
   }
+  if (cmd === 'bg') { closePopups('bg'); bgPop.hidden = false; $('#btnBg').setAttribute('aria-expanded', 'true'); return; }
   closePopups();
   if (cmd.startsWith('host:')) { if (window.lemmaHost && window.lemmaHost.onAction) window.lemmaHost.onAction(cmd.slice(5), b); return; }
   if (cmd === 'template') insertTemplate();
@@ -3011,7 +4117,7 @@ fileIn.addEventListener('change', async () => {
 });
 
 // ---------- keyboard ----------
-const TOOL_KEYS = { KeyV: 'select', KeyH: 'hand', KeyN: 'note', KeyT: 'text', KeyF: 'formula', KeyG: 'graph', KeyC: 'calc', KeyR: 'shape', KeyM: 'frame', KeyA: 'arrow', KeyP: 'pen', KeyE: 'eraser' };
+const TOOL_KEYS = { KeyV: 'select', KeyH: 'hand', KeyN: 'note', KeyT: 'text', KeyF: 'formula', KeyG: 'graph', KeyC: 'calc', KeyR: 'shape', KeyM: 'frame', KeyA: 'arrow', KeyP: 'pen', KeyE: 'eraser', KeyL: 'ruler', KeyO: 'proto' };
 let nudgeT = 0;
 document.addEventListener('keydown', e => {
   const typing = isTyping(e.target);
@@ -3027,7 +4133,7 @@ document.addEventListener('keydown', e => {
   if (mod && (e.code === 'Minus' || e.code === 'NumpadSubtract')) { e.preventDefault(); zoomBy(0.8); return; }
   if (mod) return;
   if ((e.key === 'Delete' || e.key === 'Backspace') && S.sel.size) { e.preventDefault(); deleteItems([...S.sel]); return; }
-  if (e.key === 'Escape') { if (following) { stopFollow(); return; } closePopups(); setSel([]); setTool('select'); return; }
+  if (e.key === 'Escape') { if (pk) { closePicker(); return; } if (following) { stopFollow(); return; } if (S.measure) { clearMeasure(); return; } closePopups(); setSel([]); setTool('select'); return; }
   if (e.key === 'Enter' && S.sel.size === 1) { e.preventDefault(); startEdit([...S.sel][0]); return; }
   if (e.key.startsWith('Arrow') && S.sel.size) {
     e.preventDefault();
@@ -3309,7 +4415,16 @@ function start(hot) {
   }
   if (host && typeof host.ready === 'function') host.ready({ toast, renderPeople, renderPeoplePop });
   const prefs = LS.get(PREFKEY, null);
-  if (prefs) { if (['lines', 'dots', 'none'].includes(prefs.grid)) S.grid = prefs.grid; S.snap = !!prefs.snap; }
+  if (prefs) {
+    if (['lines', 'dots', 'none'].includes(prefs.grid)) S.grid = prefs.grid; S.snap = !!prefs.snap;
+    if (BOARD_IDS.includes(prefs.board)) S.board = prefs.board;
+    if (prefs.pen && typeof prefs.pen === 'object') {
+      S.pen.color = cleanColor(prefs.pen.color, INK_PRESETS, 'ink');
+      if ([2, 3, 6, 12].includes(prefs.pen.width)) S.pen.width = prefs.pen.width;
+      if (typeof prefs.pen.smooth === 'number') S.pen.smooth = clamp(Math.round(prefs.pen.smooth), 0, 100);
+    }
+  }
+  applyBoard();
   applyPrefs();
   for (const b of toolbar.querySelectorAll('.tool')) b.setAttribute('aria-pressed', String(b.dataset.tool === 'select'));
   const cam = (hot && hot.cam) || LS.get(CAMKEY, null);
