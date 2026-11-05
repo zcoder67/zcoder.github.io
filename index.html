@@ -200,10 +200,10 @@ code { font-family: var(--font-mono); font-size: .9em; background: color-mix(in 
 .g-over { pointer-events: none; }
 
 .calc-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
-.calc-src { display: block; box-sizing: border-box; width: 100%; font: 13.5px/22px var(--font-mono); padding: 10px 12px; border: 0; resize: none; background: transparent; color: var(--ink); white-space: pre; overflow-x: auto; overflow-y: hidden; outline: none; tab-size: 2; user-select: text; -webkit-user-select: text; }
+.calc-src { display: block; box-sizing: border-box; width: 100%; font: 15px/24px var(--font-ui); padding: 10px 12px; border: 0; resize: none; background: transparent; color: var(--ink); white-space: pre; overflow-x: auto; overflow-y: hidden; outline: none; tab-size: 2; user-select: text; -webkit-user-select: text; }
 .calc-src::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
-.calc-res { padding: 10px 12px 10px 10px; font: 13.5px/22px var(--font-mono); text-align: right; color: var(--accent); border-left: 1px dashed var(--line); min-width: 80px; max-width: 240px; font-variant-numeric: tabular-nums; }
-.calc-res > div { height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calc-res { padding: 10px 12px 10px 10px; font: 14px/24px var(--font-ui); text-align: right; color: var(--accent); border-left: 1px dashed var(--line); min-width: 80px; max-width: 240px; font-variant-numeric: tabular-nums; }
+.calc-res > div { height: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .calc-res .err { color: var(--red); font-family: var(--font-ui); font-size: 12px; }
 
 /* ---------- chrome ---------- */
@@ -491,6 +491,30 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
 :root[data-board][data-board="blue"] { --paper: #13294A; --grid-minor: rgba(190, 215, 255, 0.08); --grid-major: rgba(190, 215, 255, 0.17); --panel: #1A335A; --panel-2: #213D68; --line: #2F4D7C; --ink: #E6EEFA; --muted: #A3B6D3; --on-accent: #13294A; --c-ink: #E6EEFA; }
 :root[data-board][data-board="dkgreen"] { --paper: #1D2924; --grid-minor: rgba(214, 233, 220, 0.055); --grid-major: rgba(214, 233, 220, 0.12); --panel: #25322D; --panel-2: #2D3B35; --line: #3A4C44; --ink: #E5ECE2; --muted: #9AAFA3; --on-accent: #1D2924; --c-ink: #E5ECE2; }
 
+/* ---------- calculator: notebook look ---------- */
+.item.calc:not(.calc-editing) .calc-body { display: none; }
+.item.calc.calc-editing .calc-view { display: none; }
+.calc-view { padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 8px; cursor: text; font-size: 15.5px; min-height: 40px; }
+.cl-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; }
+.cl-in { min-width: 0; overflow-x: auto; overflow-y: hidden; color: var(--ink); scrollbar-width: none; }
+.cl-out { flex: none; max-width: 60%; display: inline-flex; gap: 8px; align-items: center; color: var(--accent); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.cl-eq { color: var(--muted); }
+.cl-text { color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.cl-gap { height: 4px; }
+.cl-row.bad .cl-in { opacity: .75; }
+.cl-err { flex: none; color: var(--red); font-size: 12px; font-family: var(--font-ui); }
+.calc-view .katex { font-size: 1.05em; }
+
+/* ---------- images ---------- */
+.item.image { border-radius: 6px; }
+.item.image img { display: block; width: 100%; height: 100%; object-fit: fill; border-radius: 6px; pointer-events: none; user-select: none; -webkit-user-drag: none; box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 6px 18px -6px rgba(0, 0, 0, .25); }
+.img-missing { width: 100%; height: 100%; display: grid; place-items: center; border: 1.5px dashed var(--line); border-radius: 6px; color: var(--muted); font-size: 13px; }
+.calc-res:not(.has) { display: none; }
+.cl-empty { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 4px; }
+.cl-empty-t { font-size: 13.5px; color: var(--ink); font-weight: 500; margin-bottom: 2px; }
+.cl-ex { color: var(--muted); }
+.cl-ex .katex { font-size: .98em; }
+
 /* standalone (P2P) additions */
 .pp-share { margin: 4px 8px 6px; }
 .pp-lab { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
@@ -582,6 +606,7 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
 
   <div id="menu" class="menu panel" hidden role="menu">
     <button class="mi" role="menuitem" data-cmd="template">Добавить пример доски</button>
+    <button class="mi" role="menuitem" data-cmd="image">Вставить картинку из файла…</button>
     <button class="mi" role="menuitem" data-cmd="bg">Фон доски…</button>
     <div class="msep"></div>
     <button class="mi" role="menuitem" data-cmd="export-file">Скачать доску (.json)</button>
@@ -637,13 +662,18 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
       </div>
       <p style="margin-top:10px">Перетаскивайте поле графика, чтобы сдвинуть оси. Колесо мыши над выделенным графиком меняет масштаб. Наведите курсор, чтобы увидеть значения.</p>
       <h3>Вычисления</h3>
+      <p>Пишите как в тетради, по строке на шаг. Пока вы печатаете, справа видны ответы. Когда щёлкнете мимо, строки превратятся в красивые формулы.</p>
       <div class="kv">
         <code>rho = 1050 kg/m^3</code><span>величины с единицами</span>
-        <code>p to MPa</code><span>перевод единиц</span>
+        <code>p = rho·g·h → MPa</code><span>перевод единиц: «→», «в» или «to»</span>
+        <code>√2 + π²</code><span>знаки √, π, ², ³, ·, × работают как есть</span>
         <code>A = [2, 1; 1, 3]</code><span>матрицы: det(A), inv(A), eigs(A), lusolve(A, b)</span>
-        <code>derivative("x^3", "x")</code><span>производная прямо в строке</span>
-        <code># комментарий</code><span>строка без вычисления</span>
+        <code>diff(x^3, x)</code><span>производная; simplify(2x + 3x) — упрощение</span>
+        <code>Давление столба</code><span>строка со словами — подпись</span>
       </div>
+      <h3>Картинки и колесо мыши</h3>
+      <p>Скопируйте картинку или скриншот и нажмите Ctrl+V на доске — она встанет туда, где курсор. Картинку можно перетащить из папки или выбрать в меню «⋯». Угловая ручка меняет размер с сохранением пропорций, Shift — свободно.</p>
+      <p>Колесо работает одинаково на доске и в выделенном графике: колесо мыши или Ctrl + колесо — масштаб под курсором, прокрутка двумя пальцами — сдвиг, Shift + колесо — сдвиг вбок.</p>
       <h3>Фигуры, стрелки, измерения</h3>
       <p>Прямоугольник и треугольник — это многоугольники: тяните любую вершину, при этом видны внутренние углы. «+» на стороне добавляет вершину, двойной щелчок по вершине удаляет её. «Правильный» держит стороны и углы равными. У эллипса при выделении видны фокусы F₁ и F₂.</p>
       <p>У стрелки есть ручки на обоих концах и магнит для каждого конца. Включённый магнит цепляет конец к объекту, выключенный оставляет его на месте на доске или в разделе. Над стикером есть закрепка: потяните от неё, чтобы провести стрелку.</p>
@@ -657,7 +687,8 @@ input.pk-alpha { background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--p
         <kbd>L O</kbd><span>линейка, транспортир</span>
         <kbd>Shift</kbd><span>карандаш — по осям и 45°; фигура — квадрат, круг, равносторонний; поворот — шаг 15°</span>
         <kbd>Пробел + мышь</kbd><span>двигать доску</span>
-        <kbd>Ctrl + колесо</kbd><span>масштаб; колесо мыши тоже приближает</span>
+        <kbd>Колесо / Ctrl + колесо</kbd><span>масштаб под курсором; на выделенном графике — масштаб графика</span>
+        <kbd>Ctrl+V</kbd><span>вставить картинку, текст или скопированные элементы</span>
         <kbd>Ctrl+Z / Ctrl+Shift+Z</kbd><span>отменить / повторить</span>
         <kbd>Ctrl+C / Ctrl+V / Ctrl+D</kbd><span>копировать, вставить, дублировать</span>
         <kbd>Enter</kbd><span>редактировать выделенное</span>
@@ -1015,7 +1046,7 @@ function makeTemplate() {
       view: { cx: 0, cy: 0, kx: 55, ky: 55 } },
     { id: 'a2', type: 'arrow', z: 8, a: { id: 'f1' }, b: { id: 'g1' }, label: 'график', color: 'blue' },
 
-    { id: 'tB', type: 'frame', x: 0, y: 690, w: 1100, h: 520, z: -3, title: 'Кривые второго порядка' },
+    { id: 'tB', type: 'frame', x: 0, y: 690, w: 1100, h: 600, z: -3, title: 'Кривые второго порядка' },
     { id: 'g2', type: 'graph', x: 48, y: 742, w: 560, h: 430, z: 9, marks: false,
       fns: [{ e: 'x^2/9 + y^2/4 = 1', c: 'purple', on: true }, { e: 'x^2 - y^2 = 1', c: 'orange', on: true }, { e: '(3, 0)', c: 'red', on: true }, { e: '(k*cos(t), k*sin(t))', c: 'green', on: true }],
       params: { k: { v: 1.4, min: 0.2, max: 4 } },
@@ -1025,14 +1056,14 @@ function makeTemplate() {
 
     { id: 'tC', type: 'frame', x: 1180, y: 0, w: 560, h: 610, z: -2, title: 'Расчёт с единицами' },
     { id: 'f3', type: 'formula', x: 1228, y: 64, z: 12, src: 'p = \\rho g h', fs: 30 },
-    { id: 'c1', type: 'calc', x: 1228, y: 168, w: 470, h: 120, z: 13, src: '# Давление столба жидкости\nrho = 1050 kg/m^3\ng = 9.81 m/s^2\nh = 2500 m\np = rho * g * h to MPa\np to psi' },
+    { id: 'c1', type: 'calc', x: 1228, y: 168, w: 470, h: 120, z: 13, src: 'Давление столба жидкости\nrho = 1050 kg/m^3\ng = 9.81 m/s^2\nh = 2500 m\np = rho · g · h → MPa\np → psi' },
     { id: 'a3', type: 'arrow', z: 14, a: { id: 'f3' }, b: { id: 'c1' }, label: '', color: 'ink' },
-    { id: 'n4', type: 'note', x: 1228, y: 410, w: 320, h: 150, z: 15, color: 'blue', text: 'Переменные из «Вычислений» видны везде: в формулах (значение появится под формулой), на графиках и в панели «Переменные».' },
+    { id: 'n4', type: 'note', x: 1228, y: 452, w: 320, h: 120, z: 15, color: 'blue', text: 'Переменные из «Вычислений» видны везде: в формулах (значение появится под формулой), на графиках и в панели «Переменные».' },
 
-    { id: 'tD', type: 'frame', x: 1180, y: 690, w: 560, h: 520, z: -1, title: 'Линейная алгебра' },
+    { id: 'tD', type: 'frame', x: 1180, y: 690, w: 560, h: 600, z: -1, title: 'Линейная алгебра' },
     { id: 'c2', type: 'calc', x: 1228, y: 742, w: 470, h: 120, z: 16, src: 'A = [2, 1; 1, 3]\nv = [1; 2]\ndet(A)\ninv(A)\neigs(A).values\ns = lusolve(A, v)' },
-    { id: 'f4', type: 'formula', x: 1228, y: 1000, z: 17, src: 'A\\vec{s} = \\vec{v}', fs: 30 },
-    { id: 'f5', type: 'formula', x: 1470, y: 1000, z: 18, src: 'det(A)', fs: 30 }
+    { id: 'f4', type: 'formula', x: 1228, y: 1170, z: 17, src: 'A\\vec{s} = \\vec{v}', fs: 30 },
+    { id: 'f5', type: 'formula', x: 1470, y: 1170, z: 18, src: 'det(A)', fs: 30 }
   ];
 }
 
@@ -1057,10 +1088,10 @@ const INKS = ['ink', 'blue', 'red', 'green', 'orange', 'purple'];
 const FN_COLORS = ['blue', 'red', 'green', 'orange', 'purple', 'ink'];
 const CONST = new Set(['pi', 'e', 'i', 'tau', 'phi', 'Infinity', 'NaN', 'true', 'false', 'null', 'E', 'PI', 'LN2', 'LN10', 'LOG2E', 'LOG10E', 'SQRT1_2', 'SQRT2', 'version', 'end']);
 const LOCALVARS = new Set(['x', 'y', 't', 'theta']);
-const TYPES = new Set(['note', 'text', 'formula', 'graph', 'calc', 'shape', 'frame', 'arrow', 'stroke']);
-const RESIZABLE = new Set(['note', 'text', 'formula', 'graph', 'calc', 'shape', 'frame']);
+const TYPES = new Set(['note', 'text', 'formula', 'graph', 'calc', 'shape', 'frame', 'arrow', 'stroke', 'image']);
+const RESIZABLE = new Set(['note', 'text', 'formula', 'graph', 'calc', 'shape', 'frame', 'image']);
 const ASKABLE = new Set(['note', 'text', 'formula', 'calc', 'graph', 'shape']);
-const DEF = { note: [220, 160], text: [260, 30], formula: [120, 50], graph: [460, 380], calc: [380, 120], shape: [180, 110], frame: [640, 420], arrow: [0, 0], stroke: [1, 1] };
+const DEF = { note: [220, 160], text: [260, 30], formula: [120, 50], graph: [460, 380], calc: [380, 120], shape: [180, 110], frame: [640, 420], arrow: [0, 0], stroke: [1, 1], image: [320, 240] };
 const TEXOPT = {
   parenthesis: 'auto', implicit: 'hide',
   handler(node, opt) {
@@ -1417,7 +1448,7 @@ function ellipseFoci(w, h) {
   return w >= h ? [[w / 2 - c, h / 2], [w / 2 + c, h / 2]] : [[w / 2, h / 2 - c], [w / 2, h / 2 + c]];
 }
 function makeShape(kind, r, reg) {
-  const it = newItem('shape', r.x, r.y, { w: Math.max(10, Math.round(r.w)), h: Math.max(10, Math.round(r.h)) });
+  const it = newItem('shape', r.x, r.y, { w: Math.max(10, r1(r.w)), h: Math.max(10, r1(r.h)) });
   if (kind === 'ellipse') { it.kind = 'ellipse'; delete it.pts; }
   else {
     it.kind = 'poly';
@@ -1428,8 +1459,8 @@ function makeShape(kind, r, reg) {
 }
 
 // ---------- transforms ----------
-const ROT_TYPES = new Set(['note', 'text', 'formula', 'shape', 'stroke']);
-function hasRotField(it) { return it.type === 'note' || it.type === 'text' || it.type === 'formula' || (it.type === 'shape' && it.kind === 'ellipse'); }
+const ROT_TYPES = new Set(['note', 'text', 'formula', 'shape', 'stroke', 'image']);
+function hasRotField(it) { return it.type === 'note' || it.type === 'text' || it.type === 'formula' || it.type === 'image' || (it.type === 'shape' && it.kind === 'ellipse'); }
 function isBaked(it) { return it.type === 'stroke' || (it.type === 'shape' && it.kind !== 'ellipse'); }
 function rotV(x, y, deg) { const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return { x: x * c - y * s, y: x * s + y * c }; }
 function rotP(p, c, deg) { const v = rotV(p.x - c.x, p.y - c.y, deg); return { x: c.x + v.x, y: c.y + v.y }; }
@@ -1659,7 +1690,8 @@ const TYPE_DEFAULTS = {
   shape: () => ({ kind: 'poly', pts: [], text: '', stroke: 'blue', fill: 'tint', sw: 2, rad: 0 }),
   frame: () => ({ title: 'Раздел' }),
   arrow: () => ({ a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, label: '', color: 'ink', head: true, style: 'solid', ma: true, mb: true }),
-  stroke: () => ({ pts: [], color: 'ink', width: 3 })
+  stroke: () => ({ pts: [], color: 'ink', width: 3 }),
+  image: () => ({ src: '' })
 };
 function trackZ(it) { if (it.z > maxZ) maxZ = it.z; if (it.z < minZ) minZ = it.z; }
 function newItem(type, x, y, extra = {}) {
@@ -1685,6 +1717,7 @@ function sanitize(o) {
     case 'text': it.text = s(o.text); it.fs = clamp(n(o.fs, 20), 1, 100); if (rot) it.rot = rot; break;
     case 'formula': it.src = s(o.src); it.fs = clamp(n(o.fs, 28), 1, 160); if (rot) it.rot = rot; break;
     case 'calc': it.src = s(o.src); break;
+    case 'image': it.src = typeof o.src === 'string' && o.src.length <= 400000 && IMG_RE.test(o.src) ? o.src : ''; if (rot) it.rot = rot; break;
     case 'shape': {
       it.text = s(o.text);
       it.stroke = cleanColor(o.stroke, INK_PRESETS, cleanColor(o.color, INK_PRESETS, 'blue'));
@@ -1741,7 +1774,7 @@ function boxOf(it) { const b = baseBox(it); return it.rot ? rotBox(b, it.rot) : 
 function baseBox(it) {
   if (it.type === 'arrow') { const g = arrowGeom(it); return { x: Math.min(g.x1, g.x2), y: Math.min(g.y1, g.y2), w: Math.abs(g.x2 - g.x1), h: Math.abs(g.y2 - g.y1) }; }
   const g = eff(it);
-  if (it.type === 'stroke' || it.type === 'frame' || it.type === 'graph' || it.type === 'shape') return { x: g.x, y: g.y, w: g.w, h: g.h };
+  if (it.type === 'stroke' || it.type === 'frame' || it.type === 'graph' || it.type === 'shape' || it.type === 'image') return { x: g.x, y: g.y, w: g.w, h: g.h };
   const el = els.get(it.id);
   return { x: g.x, y: g.y, w: el ? el.offsetWidth : g.w, h: el ? el.offsetHeight : g.h };
 }
@@ -1815,10 +1848,18 @@ function renderItem(it) {
     els.set(it.id, el);
     if (it.type !== 'arrow' && it.type !== 'stroke') ro.observe(el);
   }
-  el.style.zIndex = it.type === 'frame' ? it.z - 1000000 : it.z;
+  el.style.zIndex = zIndexOf(it);
   R[it.type](it, el);
   el.classList.toggle('sel', S.sel.has(it.id));
   syncHandle(el, it);
+}
+function zIndexOf(it) {
+  if (it.type === 'frame') return Math.round(it.z * 2) - 2000000;
+  if (it.type === 'arrow') {
+    const zs = [it.a, it.b].map(endTarget).filter(t => t && t.type !== 'frame' && t.type !== 'arrow').map(t => t.z);
+    if (zs.length) return Math.round(Math.min(...zs) * 2) - 1;
+  }
+  return Math.round(it.z * 2);
 }
 function syncHandle(el, it) {
   const want = S.sel.size === 1 && S.sel.has(it.id) && RESIZABLE.has(it.type) && !isBaked(it) && S.editing !== it.id && S.tool === 'select';
@@ -1978,28 +2019,63 @@ const R = {
     const dk = [stable(it.fns), stable(it.params), stable(it.view), it.marks, it.inter, it.polar, g.w, g.h, S.scopeVer, S.themeVer, S.hiresVer].join('|');
     if (el._dk !== dk) { el._dk = dk; drawGraph(it, el); }
   },
+  image(it, el) {
+    const g = eff(it);
+    pos(el, it); el.style.width = g.w + 'px'; el.style.height = g.h + 'px';
+    applyRot(el, it);
+    const k = it.src.length + ':' + it.src.slice(-48);
+    if (el._k === k) return;
+    el._k = k;
+    el.innerHTML = it.src ? '<img src="' + it.src + '" alt="" draggable="false">' : '<div class="img-missing">Картинка недоступна</div>';
+  },
   calc(it, el) {
     pos(el, it); el.style.width = eff(it).w + 'px';
     if (!el._built) { el.innerHTML = CALC_HTML; el._built = true; }
-    const ta = el.querySelector('.calc-src'), res = el.querySelector('.calc-res');
+    const ta = el.querySelector('.calc-src'), res = el.querySelector('.calc-res'), view = el.querySelector('.calc-view');
     if (document.activeElement !== ta && ta.value !== it.src) ta.value = it.src;
+    const editing = document.activeElement === ta;
+    el.classList.toggle('calc-editing', editing);
     sizeCalc(ta);
     const results = S.calcResults.get(it.id) || [];
     const n = ta.value.split('\n').length;
-    const k = stable(results) + '|' + n;
+    const k = stable(results) + '|' + n + '|' + editing + '|' + (editing ? '' : it.src);
     if (el._k === k) return;
     el._k = k;
     let h = '';
     for (let i = 0; i < n; i++) {
       const r = results[i];
-      if (!r) h += '<div></div>';
+      if (!r || r.text != null) h += '<div></div>';
       else if (r.err) h += '<div class="err" title="' + esc(r.err) + '">' + esc(errRu(r.err)) + '</div>';
-      else h += '<div title="' + esc(r.v) + '">' + esc(r.v) + '</div>';
+      else h += '<div title="' + esc(r.v || '') + '">' + (r.hide ? '' : esc(r.v || '')) + '</div>';
     }
     res.innerHTML = h;
+    res.classList.toggle('has', results.some(r => r && (r.err || (r.v && !r.hide))));
+    if (editing) return;
+    if (!it.src.trim()) {
+      view.innerHTML = '<div class="cl-empty"><div class="cl-empty-t">Щёлкните и считайте по строке</div>' +
+        ['m = 2\\,\\mathrm{kg}', 'F = m\\cdot 9.81\\,\\frac{\\mathrm{m}}{\\mathrm{s}^2} \\rightarrow \\mathrm{N}', '\\sqrt{2} + \\pi^2']
+          .map(t => '<div class="cl-ex">' + texHTML('\\displaystyle ' + t, false) + '</div>').join('') + '</div>';
+      return;
+    }
+    let vh = '';
+    it.src.split('\n').forEach((line, i) => {
+      const r = results[i];
+      if (!line.trim()) { vh += '<div class="cl-gap"></div>'; return; }
+      if (!r || r.text != null) { vh += '<div class="cl-text">' + rich(r && r.text != null ? r.text : line.trim()) + '</div>'; return; }
+      if (r.err) { vh += '<div class="cl-row bad"><span class="cl-in">' + (r.inTex ? texHTML('\\displaystyle ' + r.inTex, false) : esc(line.trim())) + '</span><span class="cl-err" title="' + esc(r.err) + '">' + esc(errRu(r.err)) + '</span></div>'; return; }
+      vh += '<div class="cl-row"><span class="cl-in">' + texHTML('\\displaystyle ' + r.inTex, false) + '</span>' +
+        (!r.hide && r.outTex ? '<span class="cl-out"><span class="cl-eq">=</span>' + texHTML('\\displaystyle ' + r.outTex, false) + '</span>' : '') + '</div>';
+    });
+    view.innerHTML = vh;
   }
 };
-function sizeCalc(ta) { const n = ta.value.split('\n').length; ta.style.height = (Math.max(3, n) * 22 + 20 + (ta.scrollWidth > ta.clientWidth + 2 ? 12 : 0)) + 'px'; }
+function sizeCalc(ta) { const n = ta.value.split('\n').length; ta.style.height = (Math.max(3, n) * 24 + 20 + (ta.scrollWidth > ta.clientWidth + 2 ? 12 : 0)) + 'px'; }
+function openCalcEditor(id) {
+  const el = els.get(id); if (!el) return;
+  const ta = el.querySelector('.calc-src'); if (!ta) return;
+  el.classList.add('calc-editing');
+  ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+}
 function smoothPath(pts, ox, oy) {
   const f = v => r1(v);
   if (!pts.length) return '';
@@ -2020,8 +2096,9 @@ const GRAPH_HTML = '<div class="card"><div class="card-h"><span class="card-t">�
   '<button class="hb" data-ui data-act="home" title="Исходный вид" aria-label="Исходный вид">' + ICON_HOME + '</button></div>' +
   '<div class="g-rows"></div><button class="g-add" data-ui data-act="add">+ функция</button><div class="g-params"></div>' +
   '<div class="g-plot" data-ui="plot"><canvas class="g-base"></canvas><canvas class="g-over"></canvas></div></div>';
-const CALC_HTML = '<div class="card"><div class="card-h"><span class="card-t">Вычисления</span><span class="card-sp"></span><span class="card-hint">единицы · матрицы · функции</span></div>' +
-  '<div class="calc-body"><textarea class="calc-src" data-ui spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Строки вычислений" placeholder="a = 2&#10;b = a^2 + 1&#10;5 cm to inch"></textarea><div class="calc-res"></div></div></div>';
+const CALC_HTML = '<div class="card"><div class="card-h"><span class="card-t">Вычисления</span><span class="card-sp"></span><span class="card-hint">числа · единицы · матрицы</span></div>' +
+  '<div class="calc-view" title="Щёлкните, чтобы изменить"></div>' +
+  '<div class="calc-body"><textarea class="calc-src" data-ui spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Строки вычислений" placeholder="mass = 2 kg&#10;F = mass · 9.81 m/s² → N&#10;√2 + π²"></textarea><div class="calc-res"></div></div></div>';
 
 // ---------- graphs ----------
 let colorCache = null;
@@ -2262,7 +2339,7 @@ function drawGraph(it, el) {
         const s = plotExplicit(ctx, r.code, scope, W, H, Y, x0, v.kx);
         samples.push({ s, X, Y });
         data.push({ i, code: r.code, color: col, label: r.label || ('y' + subIdx(i + 1)) });
-        if (it.marks) findMarks(r.code, scope, s, marks, col, X, Y, W, H);
+        if (it.marks) findMarks(r.code, scope, s, marks, col, X, Y, W, H, v.ky);
       } else if (r.kind === 'implicit') {
         const g = gridEval(r, scope, W, H, x0, y1, v.kx, v.ky, 5);
         contour(ctx, g);
@@ -2304,7 +2381,7 @@ function drawGraph(it, el) {
     } catch (e) { /* skip broken row */ }
   });
   delete scope.x; delete scope.y;
-  if (it.inter !== false && samples.length > 1) findIntersections(samples, scope, marks, X, Y, W, H, C.text);
+  if (it.inter !== false && samples.length > 1) findIntersections(samples, scope, marks, X, Y, W, H, v.ky);
   for (const m of marks) {
     if (m.kind === 'point') continue;
     ctx.beginPath(); ctx.arc(m.px, m.py, m.kind === 'inter' ? 4.4 : 3.8, 0, 7);
@@ -2338,28 +2415,36 @@ function plotExplicit(ctx, code, scope, W, H, Y, x0, kx) {
   ctx.stroke();
   return { xs, ys, f };
 }
-function findMarks(code, scope, s, marks, color, X, Y, W, H) {
-  const { xs, ys, f } = s; let count = 0;
+function findMarks(code, scope, s, marks, color, X, Y, W, H, ky) {
+  const { xs, ys, f } = s, n = xs.length; let count = 0;
+  const eps = 1e-9 / (ky || 1), isZ = v => Math.abs(v) < eps;
   const add = (x, kind) => {
     const y = f(x);
     if (!isFinite(y) || count > 24) return;
     const px = X(x), py = Y(y);
     if (px < 0 || px > W || py < 0 || py > H) return;
-    if (marks.some(m => Math.abs(m.px - px) < 2 && Math.abs(m.py - py) < 2)) return;
-    marks.push({ px, py, x, y, kind, color }); count++;
+    if (marks.some(m => Math.abs(m.px - px) < 3 && Math.abs(m.py - py) < 3)) return;
+    marks.push({ px, py, x, y: Math.abs(y) < eps ? 0 : y, kind, color }); count++;
   };
-  for (let i = 1; i < xs.length; i++) {
+  // a run of (numerically) zero samples is one root, not one per pixel
+  for (let i = 0; i < n;) {
+    if (!(isFinite(ys[i]) && isZ(ys[i]))) { i++; continue; }
+    let j = i; while (j + 1 < n && isFinite(ys[j + 1]) && isZ(ys[j + 1])) j++;
+    const bounded = i > 0 && j < n - 1 && isFinite(ys[i - 1]) && isFinite(ys[j + 1]);
+    if (j - i <= 2 || bounded) add((xs[i] + xs[j]) / 2, 'root');
+    i = j + 1;
+  }
+  for (let i = 1; i < n; i++) {
     const a = ys[i - 1], b = ys[i];
-    if (!isFinite(a) || !isFinite(b)) continue;
-    if (a === 0) add(xs[i - 1], 'root');
-    else if (a * b < 0 && Math.abs(Y(a) - Y(b)) < H) {
+    if (!isFinite(a) || !isFinite(b) || isZ(a) || isZ(b)) continue;
+    if (a * b < 0 && Math.abs(Y(a) - Y(b)) < H) {
       let lo = xs[i - 1], hi = xs[i], flo = a;
       for (let k = 0; k < 50; k++) { const m = (lo + hi) / 2, fm = f(m); if (!isFinite(fm)) break; if (flo * fm <= 0) hi = m; else { lo = m; flo = fm; } }
       add((lo + hi) / 2, 'root');
     }
-    if (i < xs.length - 1) {
+    if (i < n - 1) {
       const c = ys[i + 1];
-      if (isFinite(c) && (b - a) * (c - b) < 0) {
+      if (isFinite(c) && !isZ(c) && (b - a) * (c - b) < 0 && Math.abs(b - a) > eps && Math.abs(c - b) > eps) {
         const isMax = b > a;
         let lo = xs[i - 1], hi = xs[i + 1];
         const gr = 0.6180339887;
@@ -2374,8 +2459,9 @@ function findMarks(code, scope, s, marks, color, X, Y, W, H) {
   }
   delete scope.x;
 }
-function findIntersections(samples, scope, marks, X, Y, W, H) {
+function findIntersections(samples, scope, marks, X, Y, W, H, ky) {
   let count = 0;
+  const eps = 1e-9 / (ky || 1), isZ = v => Math.abs(v) < eps;
   for (let a = 0; a < samples.length; a++) for (let b = a + 1; b < samples.length; b++) {
     const A = samples[a].s, B = samples[b].s, n = Math.min(A.xs.length, B.xs.length);
     const h = x => A.f(x) - B.f(x);
@@ -2384,7 +2470,11 @@ function findIntersections(samples, scope, marks, X, Y, W, H) {
       if (!isFinite(d0) || !isFinite(d1)) continue;
       if (Math.abs(Y(A.ys[i - 1]) - Y(A.ys[i])) > H || Math.abs(Y(B.ys[i - 1]) - Y(B.ys[i])) > H) continue;
       let x;
-      if (d0 === 0) x = A.xs[i - 1];
+      if (isZ(d1)) {
+        const d2 = i + 1 < n ? A.ys[i + 1] - B.ys[i + 1] : NaN;
+        if (isZ(d0) || !isFinite(d2) || isZ(d2)) continue;
+        x = A.xs[i];
+      } else if (isZ(d0)) continue;
       else if (d0 * d1 < 0) {
         let lo = A.xs[i - 1], hi = A.xs[i], flo = d0;
         for (let k = 0; k < 55; k++) { const m = (lo + hi) / 2, fm = h(m); if (!isFinite(fm)) break; if (flo * fm <= 0) hi = m; else { lo = m; flo = fm; } }
@@ -2394,7 +2484,7 @@ function findIntersections(samples, scope, marks, X, Y, W, H) {
       if (!isFinite(y)) continue;
       const px = X(x), py = Y(y);
       if (px < 0 || px > W || py < 0 || py > H) continue;
-      if (marks.some(m => m.kind === 'inter' && Math.abs(m.px - px) < 2 && Math.abs(m.py - py) < 2)) continue;
+      if (marks.some(m => m.kind === 'inter' && Math.abs(m.px - px) < 3 && Math.abs(m.py - py) < 3)) continue;
       marks.push({ px, py, x, y, kind: 'inter', color: null }); count++;
     }
   }
@@ -2539,20 +2629,62 @@ function toggleAnim(it, n) {
 // ---------- scope (calc cards) ----------
 let scopeT = 0;
 function scheduleScope() { clearTimeout(scopeT); scopeT = setTimeout(recomputeScope, 120); }
+const SYMBOLIC = new Set(['derivative', 'simplify', 'rationalize', 'diff']);
+const CALCTEX = {
+  parenthesis: 'auto', implicit: 'hide',
+  handler(node, opt) {
+    if (node.type === 'FunctionNode' && node.fn && node.fn.isSymbolNode) {
+      const n = node.fn.name;
+      if ((n === 'diff' || n === 'derivative') && node.args.length >= 2) return '\\frac{d}{d' + node.args[1].toTex(opt) + '}\\left(' + node.args[0].toTex(opt) + '\\right)';
+      if (n === 'simplify' || n === 'rationalize') return '\\operatorname{' + (n === 'simplify' ? 'упростить' : 'привести') + '}\\left(' + node.args.map(a => a.toTex(opt)).join(',') + '\\right)';
+    }
+    return TEXOPT.handler(node, opt);
+  }
+};
+function calcPrep(t) { return prep(t).replace(/\s*(?:→|->)\s*/g, ' to ').replace(/\s+в\s+(?=[A-Za-zµ°Ω])/g, ' to '); }
+function symbolic(node) {
+  return node.transform(n => {
+    if (n.isFunctionNode && n.fn && n.fn.isSymbolNode && SYMBOLIC.has(n.fn.name)) {
+      const name = n.fn.name === 'diff' ? 'derivative' : n.fn.name;
+      return new math.FunctionNode(new math.SymbolNode(name), n.args.map((a, i) => i < 2 && !(a.isConstantNode && typeof a.value === 'string') ? new math.ConstantNode(a.toString()) : a));
+    }
+    return n;
+  });
+}
+function valueTex(v) {
+  if (v && v.isNode) return v.toTex(CALCTEX);
+  if (typeof v === 'function') return '\\text{функция}';
+  if (typeof v === 'boolean') return v ? '\\text{да}' : '\\text{нет}';
+  const s = fmtVal(v);
+  try { return math.parse(s).toTex(CALCTEX).replace(/10\^\{\+/g, '10^{'); } catch (e) { return '\\text{' + s.replace(/[\\{}$&#%_^~]/g, '') + '}'; }
+}
 function recomputeScope() {
   const scope = {}, src = {};
   const calcs = [...S.items.values()].filter(i => i.type === 'calc').sort((a, b) => (a.created - b.created) || (a.id < b.id ? -1 : 1));
   for (const c of calcs) {
     const res = [];
     for (const line of (c.src || '').split('\n')) {
-      const t = line.trim();
-      if (!t || t.startsWith('#') || t.startsWith('//')) { res.push(null); continue; }
+      const raw = line.trim();
+      if (!raw) { res.push(null); continue; }
+      if (/^(#|\/\/)/.test(raw)) { res.push({ text: raw.replace(/^(#+|\/\/+)\s*/, '') }); continue; }
+      let node;
+      try { node = math.parse(calcPrep(raw)); }
+      catch (e) {
+        if (/[А-Яа-яЁё]/.test(raw)) { res.push({ text: raw }); continue; }
+        res.push({ err: e.message || 'ошибка' }); continue;
+      }
+      let inTex = '';
+      try { inTex = node.toTex(CALCTEX); } catch (e) { inTex = ''; }
       try {
-        const v = math.evaluate(prep(t), scope);
-        const m = t.match(/^([A-Za-z_]\w*)\s*(\([^)]*\))?\s*=(?!=)/);
-        if (m) src[m[1]] = c.id;
-        res.push(v === undefined ? null : { v: fmtVal(v) });
-      } catch (e) { res.push({ err: e.message || 'ошибка' }); }
+        const v = symbolic(node).compile().evaluate(scope);
+        if (node.isAssignmentNode && node.object && node.object.isSymbolNode) src[node.object.name] = c.id;
+        if (node.isFunctionAssignmentNode) src[node.name] = c.id;
+        if (v === undefined) { res.push({ inTex, hide: true }); continue; }
+        const entry = { v: fmtVal(v), inTex, outTex: valueTex(v) };
+        if (node.isFunctionAssignmentNode || typeof v === 'function') entry.hide = true;
+        else if (node.isAssignmentNode && node.value.toString().replace(/\s+/g, '') === entry.v.replace(/\s+/g, '')) entry.hide = true;
+        res.push(entry);
+      } catch (e) { res.push({ err: e.message || 'ошибка', inTex }); }
     }
     S.calcResults.set(c.id, res);
   }
@@ -2974,7 +3106,7 @@ function startEdit(id, isNew) {
   const el = els.get(id);
   if (!el) return;
   if (it.type === 'graph') { const inp = el.querySelector('.g-in'); if (inp) inp.focus(); return; }
-  if (it.type === 'calc') { const ta = el.querySelector('.calc-src'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } return; }
+  if (it.type === 'calc') { openCalcEditor(id); return; }
   if (it.type === 'stroke') return;
   S.editing = id; el.classList.add('editing'); syncHandle(el, it); showOverlay(); ctxEl.hidden = true; applyRot(el, it); updateTbox(); closePicker();
   pres({ edit: id, draft: null });
@@ -3504,7 +3636,9 @@ function onDown(e) {
         if (t.closest('.handle')) return startResize(e, id);
         if (e.shiftKey) { const s = new Set(S.sel); if (s.has(id)) s.delete(id); else s.add(id); setSel([...s]); if (!S.sel.has(id)) return; }
         else if (!S.sel.has(id)) setSel([id]);
-        return startMove(e, id);
+        startMove(e, id);
+        if (t.closest('.calc-view')) drag.calcView = true;
+        return;
       }
       if (!e.shiftKey) setSel([]);
       drag = { kind: 'marquee', sx: e.clientX, sy: e.clientY, base: e.shiftKey ? new Set(S.sel) : new Set() };
@@ -3577,6 +3711,7 @@ function startArrowEnd(e, id, end) {
 }
 function onMove(e) {
   if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (e.target && e.target.closest && e.target.closest('#viewport')) { const w = toWorld(e.clientX, e.clientY); lastPointerWorld = { x: w.x, y: w.y, t: Date.now() }; }
   if (room && e.pointerType !== 'touch') {
     const r = vpRect();
     if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) { const w = toWorld(e.clientX, e.clientY); pres({ cur: [r1(w.x), r1(w.y)] }); }
@@ -3628,7 +3763,7 @@ function onMove(e) {
       const w = toWorld(e.clientX, e.clientY), o = drag.o, bb = drag.bb, c = drag.c;
       const l = rotV(w.x - c.x, w.y - c.y, -(it.rot || 0));
       let kx = Math.max(0.05, l.x / drag.l0.x), ky = Math.max(0.05, l.y / drag.l0.y);
-      if (e.shiftKey) kx = ky = Math.max(kx, ky);
+      if (it.type === 'image' ? !e.shiftKey : e.shiftKey) kx = ky = Math.max(kx, ky);
       const kd = Math.max(0.05, Math.hypot(Math.max(0, l.x), Math.max(0, l.y)) / Math.hypot(drag.l0.x, drag.l0.y));
       let nw = bb.w, nh = bb.h, keepY = false;
       switch (it.type) {
@@ -3761,6 +3896,7 @@ function onUp(e) {
     case 'plot': d.plot.classList.remove('dragging'); if (d.moved) commit(); return;
     case 'move': {
       if (d.moved) { pres({ drag: null }); commit(); buildCtx(); }
+      else if (d.calcView) openCalcEditor(d.id);
       else {
         if (!e.shiftKey && S.sel.size > 1 && d.id) setSel([d.id]);
         if (d.pointerType === 'touch' && d.id) {
@@ -3858,29 +3994,113 @@ viewport.addEventListener('dblclick', e => {
   if (itemEl) { const it = S.items.get(itemEl.dataset.id); if (it && it.type !== 'graph' && it.type !== 'calc') { setSel([it.id]); startEdit(it.id); } return; }
   if (S.tool === 'select') createAt('formula', toWorld(e.clientX, e.clientY));
 });
-let wheelTrackpadUntil = 0, plotWheelT = 0;
-viewport.addEventListener('wheel', e => {
-  e.preventDefault();
-  const plot = e.target.closest ? e.target.closest('.g-plot') : null;
-  const pid = plot ? plot.closest('.item').dataset.id : null;
-  if (plot && S.sel.has(pid) && !e.ctrlKey && !e.metaKey) {
-    const it = S.items.get(pid), r = plot.getBoundingClientRect();
-    zoomPlot(it, Math.exp(-e.deltaY * (e.deltaMode ? 0.06 : 0.002)), (e.clientX - r.left) / S.cam.z, (e.clientY - r.top) / S.cam.z);
-    clearTimeout(plotWheelT); plotWheelT = setTimeout(() => commit(), 400);
-    return;
+// ---------- images (Ctrl+V, drag-and-drop, file) ----------
+const IMG_LIMIT = 185000;
+const IMG_RE = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+=*$/;
+let lastPointerWorld = null;
+function pastePoint() {
+  if (lastPointerWorld && Date.now() - lastPointerWorld.t < 60000) return { x: lastPointerWorld.x, y: lastPointerWorld.y };
+  return viewCenter();
+}
+function readAsDataURL(blob) {
+  return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result)); fr.onerror = () => rej(fr.error); fr.readAsDataURL(blob); });
+}
+function loadBitmap(file) {
+  if (window.createImageBitmap) return createImageBitmap(file);
+  return new Promise((res, rej) => { const u = URL.createObjectURL(file), img = new Image(); img.onload = () => { res(img); setTimeout(() => URL.revokeObjectURL(u), 1000); }; img.onerror = rej; img.src = u; });
+}
+async function compressImage(file) {
+  const bmp = await loadBitmap(file);
+  const W0 = bmp.width, H0 = bmp.height;
+  if (!W0 || !H0) throw new Error('empty');
+  if (/^image\/(png|jpeg|webp)$/.test(file.type) && file.size * 1.37 < IMG_LIMIT && Math.max(W0, H0) <= 1800) {
+    const url = await readAsDataURL(file);
+    if (IMG_RE.test(url) && url.length <= IMG_LIMIT) return { src: url, w: W0, h: H0 };
   }
-  const r = vpRect(), now = performance.now();
+  const canvas = document.createElement('canvas');
+  const webp = (() => { try { canvas.width = canvas.height = 1; return canvas.toDataURL('image/webp').startsWith('data:image/webp'); } catch (e) { return false; } })();
+  const type = webp ? 'image/webp' : 'image/jpeg';
+  let side = 1600, q = 0.86;
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const s = Math.min(1, side / Math.max(W0, H0));
+    canvas.width = Math.max(1, Math.round(W0 * s)); canvas.height = Math.max(1, Math.round(H0 * s));
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (type === 'image/jpeg') { ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+    ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    const url = canvas.toDataURL(type, q);
+    if (url.length <= IMG_LIMIT && IMG_RE.test(url)) return { src: url, w: canvas.width, h: canvas.height };
+    if (q > 0.62) q -= 0.08; else side = Math.round(side * 0.78);
+  }
+  throw new Error('too big');
+}
+async function addImages(files, at) {
+  if (S.readOnly) { toast('Эта доска открыта только для просмотра.'); return; }
+  const list = [...files].filter(f => f && /^image\//.test(f.type)).slice(0, 8);
+  if (!list.length) return;
+  toast(list.length > 1 ? 'Добавляю картинки…' : 'Добавляю картинку…', 1400);
+  const ids = [];
+  let x = at.x, y = at.y, failed = 0;
+  for (const f of list) {
+    try {
+      const img = await compressImage(f);
+      const w = Math.min(480, img.w), h = Math.max(1, Math.round(w * img.h / img.w));
+      const it = newItem('image', x - w / 2, y - h / 2, { w, h, src: img.src });
+      addItem(it); ids.push(it.id); x += 36; y += 36;
+    } catch (err) { failed++; }
+  }
+  if (failed) toast(failed === list.length ? 'Не получилось прочитать картинку. Попробуйте PNG или JPEG.' : 'Часть картинок не удалось прочитать.');
+  if (ids.length) { commit(); setTool('select'); setSel(ids); showOverlay(); }
+}
+function imageFilesFrom(dt) {
+  if (!dt) return [];
+  const out = [];
+  for (const i of dt.items || []) if (i.kind === 'file' && /^image\//.test(i.type)) { const f = i.getAsFile(); if (f) out.push(f); }
+  if (!out.length) for (const f of dt.files || []) if (/^image\//.test(f.type)) out.push(f);
+  return out;
+}
+viewport.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } });
+viewport.addEventListener('drop', e => {
+  const files = imageFilesFrom(e.dataTransfer);
+  if (!files.length) return;
+  e.preventDefault();
+  addImages(files, toWorld(e.clientX, e.clientY));
+});
+const imgIn = document.createElement('input');
+imgIn.type = 'file'; imgIn.accept = 'image/*'; imgIn.multiple = true; imgIn.hidden = true;
+app.appendChild(imgIn);
+imgIn.addEventListener('change', () => { const files = [...(imgIn.files || [])]; imgIn.value = ''; addImages(files, viewCenter()); });
+
+// ---------- wheel: one rule for the board and for graphs ----------
+// mouse wheel or Ctrl/pinch = zoom at the cursor; two-finger scroll = pan; Shift + wheel = pan sideways
+let wheelTrackpadUntil = 0, plotWheelT = 0;
+function wheelIntent(e) {
+  const now = performance.now();
   const fractional = !Number.isInteger(e.deltaY) || !Number.isInteger(e.deltaX);
   if (e.deltaX !== 0 || fractional || (e.deltaMode === 0 && Math.abs(e.deltaY) < 40)) wheelTrackpadUntil = now + 600;
   const mouseWheel = !e.ctrlKey && !e.metaKey && !e.shiftKey && now > wheelTrackpadUntil && (e.deltaMode === 1 || Math.abs(e.deltaY) >= 40);
   if (e.ctrlKey || e.metaKey || mouseWheel) {
     const k = e.deltaMode === 1 ? 0.05 : (mouseWheel ? 0.0016 : 0.01);
-    zoomAt(e.clientX - r.left, e.clientY - r.top, S.cam.z * Math.exp(-e.deltaY * k));
-  } else {
-    const k = e.deltaMode === 1 ? 18 : 1;
-    if (e.shiftKey && !e.deltaX) S.cam.x -= e.deltaY * k; else { S.cam.x -= e.deltaX * k; S.cam.y -= e.deltaY * k; }
-    applyCam();
+    return { zoom: Math.exp(-e.deltaY * k) };
   }
+  const m = e.deltaMode === 1 ? 18 : 1;
+  if (e.shiftKey && !e.deltaX) return { dx: -e.deltaY * m, dy: 0 };
+  return { dx: -e.deltaX * m, dy: -e.deltaY * m };
+}
+viewport.addEventListener('wheel', e => {
+  e.preventDefault();
+  const intent = wheelIntent(e);
+  const plot = e.target.closest ? e.target.closest('.g-plot') : null;
+  const pid = plot ? plot.closest('.item').dataset.id : null;
+  if (plot && S.sel.has(pid) && S.items.has(pid)) {
+    const it = S.items.get(pid), r = plot.getBoundingClientRect();
+    if (intent.zoom) zoomPlot(it, intent.zoom, (e.clientX - r.left) / S.cam.z, (e.clientY - r.top) / S.cam.z);
+    else { it.view.cx -= intent.dx / S.cam.z / it.view.kx; it.view.cy += intent.dy / S.cam.z / it.view.ky; renderItem(it); }
+    clearTimeout(plotWheelT); plotWheelT = setTimeout(() => commit(), 400);
+    return;
+  }
+  if (intent.zoom) { const r = vpRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, S.cam.z * intent.zoom); }
+  else { S.cam.x += intent.dx; S.cam.y += intent.dy; applyCam(); }
 }, { passive: false });
 
 // ---------- delegated item UI ----------
@@ -3959,7 +4179,7 @@ world.addEventListener('keydown', e => {
   else if (t.classList.contains('calc-src') && e.key === 'Escape') t.blur();
   else if (t.classList.contains('calc-src') && e.key === 'Tab') { e.preventDefault(); document.execCommand && document.execCommand('insertText', false, '  '); }
 });
-world.addEventListener('focusin', e => { const el = e.target.closest('.item'); if (el) S.focusLock = el.dataset.id; });
+world.addEventListener('focusin', e => { const el = e.target.closest('.item'); if (el) S.focusLock = el.dataset.id; if (el && e.target.classList.contains('calc-src')) { const it = S.items.get(el.dataset.id); if (it) { el._k = null; renderItem(it); } } });
 world.addEventListener('focusout', e => {
   const el = e.target.closest('.item');
   if (!el) return;
@@ -3968,6 +4188,7 @@ world.addEventListener('focusout', e => {
     if (S.focusLock === el.dataset.id) S.focusLock = null;
     const it = S.items.get(el.dataset.id);
     if (it && it.type === 'graph') { it.fns = it.fns.filter((f, i, a) => f.e.trim() || a.length === 1); renderItem(it); }
+    if (it && it.type === 'calc') { el._k = null; renderItem(it); requestArrows(); }
     commit();
   }, 0);
 });
@@ -4005,7 +4226,7 @@ ctxEl.addEventListener('click', e => {
       const band = t => [...S.items.values()].filter(i => (i.type === 'frame') === (t === 'frame')).map(i => i.z);
       const list = sel.slice().sort((a, b) => cmd === 'front' ? a.z - b.z : b.z - a.z);
       for (const it of list) { const zs = band(it.type); it.z = cmd === 'front' ? Math.max(...zs) + 1 : Math.min(...zs) - 1; trackZ(it); renderItem(it); }
-      commit(); break;
+      requestArrows(); commit(); break;
     }
     case 'dup': duplicateSel(); break;
     case 'del': deleteItems([...S.sel]); break;
@@ -4092,6 +4313,7 @@ menuEl.addEventListener('click', async e => {
     commit(); setSel([]); showOverlay();
     return;
   }
+  if (cmd === 'image') { closePopups(); imgIn.click(); return; }
   if (cmd === 'bg') { closePopups('bg'); bgPop.hidden = false; $('#btnBg').setAttribute('aria-expanded', 'true'); return; }
   closePopups();
   if (cmd.startsWith('host:')) { if (window.lemmaHost && window.lemmaHost.onAction) window.lemmaHost.onAction(cmd.slice(5), b); return; }
@@ -4163,6 +4385,8 @@ document.addEventListener('cut', e => {
 });
 document.addEventListener('paste', e => {
   if (isTyping(e.target)) return;
+  const imgs = imageFilesFrom(e.clipboardData);
+  if (imgs.length) { e.preventDefault(); addImages(imgs, pastePoint()); return; }
   const txt = e.clipboardData && e.clipboardData.getData('text/plain');
   if (!txt) return;
   e.preventDefault();
